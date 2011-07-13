@@ -394,7 +394,7 @@ public class Profile implements Reloadable, Runnable {
 		if (port != oldPort) {
 			// we probably switched profiles and the config is inconsistent...
 			try {
-				STServer.getInstance().setPort(port);
+				STServer.getInstance(port);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.err.println("Could not set port to: " + port);
@@ -419,16 +419,15 @@ public class Profile implements Reloadable, Runnable {
 			String dbuser = p.mysqluser.value(o);
 			String dbpass = p.mysqlpass.value(o);
 			db = new MysqlDatabase(dbserver, dbname, dbuser, dbpass);
-		} else if (p.dbtype.value(o).equals("sqlite")) {
-			// sqlite...?
-			db = new SqliteDatabase( p.dbFileArg.value(o) );
-		} else {
-			// default to flat file
+		} else if (p.dbtype.value(o).equals("flat")) {
 			//String cfgFile = p.flatDbArg.value(o);
 			//db = new FlatFileDatabase(cfgFile);
 			System.err.println("Flat-file datbase support is not yet available.");
 			System.exit(1);
-		}
+		} else {
+			// default to sqlite...?
+			db = new SqliteDatabase( p.dbFileArg.value(o) );
+		} 
 		
 		if (p.emtype.value(o).equals("mediatomb")) {
 			int mtport = p.mtportArg.value(o);
@@ -697,7 +696,7 @@ public class Profile implements Reloadable, Runnable {
 			dbtype = parser.acceptsAll( asList("d", "database"), "database type")
 				.withRequiredArg().ofType( String.class )
 				.describedAs("(mysql/sqlite/flat)")
-				.defaultsTo("flat");
+				.defaultsTo("sqlite");
 			emtype = parser.acceptsAll( asList("e", "episodes"), "episode manager")
 				.withRequiredArg().ofType( String.class )
 				.describedAs("(tversity/mediatomb/local)")

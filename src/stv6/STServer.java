@@ -85,6 +85,8 @@ public class STServer extends HttpServer {
 	public static STServer getInstance(int port) throws IOException {
 		if (instance_ == null)
 			instance_ = new STServer(port);
+		else if (port != instance_.getPort())
+			instance_.setPort(port);
 		
 		return instance_;
 	}

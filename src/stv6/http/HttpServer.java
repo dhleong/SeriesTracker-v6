@@ -66,6 +66,14 @@ public abstract class HttpServer implements Runnable {
 		resp.append(" Please go back and try again.");
 		resp.append("\n</body>\n</html>");
 	}
+	
+	public int getPort() {
+		if (serverskt != null)
+			return serverskt.getLocalPort();
+		
+		return -1;
+	}
+	
 	private Socket getSocket() {
 		try {
 			return serverskt.accept();
