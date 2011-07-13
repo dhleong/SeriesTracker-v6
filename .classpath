@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="/stv5/src/jopt-simple-3.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="/stv5/src/jopt-simple-3.2.jar"/>
+	<classpathentry kind="lib" path="/home/dhleong/code/mysql-connector-java-5.1.12/mysql-connector-java-5.1.12-bin.jar" sourcepath="/home/dhleong/code/mysql-connector-java-5.1.12/src"/>
+	<classpathentry kind="lib" path="/stv5/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="/home/dhleong/code/sqlite/sqlitejdbc-v056.jar" sourcepath="/home/dhleong/code/sqlite/src/crawshaw-sqlitejdbc-60b5f5c.zip"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
