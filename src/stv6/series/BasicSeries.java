@@ -3,6 +3,7 @@ package stv6.series;
 import java.util.ArrayList;
 
 import stv6.episodes.BasicEpisode;
+import stv6.mysql.DatabaseConstructor;
 import stv6.templating.TemplateObject;
 
 public class BasicSeries implements TemplateObject, Series {
@@ -20,6 +21,7 @@ public class BasicSeries implements TemplateObject, Series {
 	protected String localPath;
 	protected ArrayList<BasicEpisode> episodes; 
 	
+	@DatabaseConstructor
 	public BasicSeries(int id, String name) {
 		this(id, name, false);
 	}

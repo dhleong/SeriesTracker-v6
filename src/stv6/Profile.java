@@ -59,6 +59,7 @@ public class Profile implements Reloadable, Runnable {
 	private File[] possibleProfiles = null;
 	private File profileFile = null;	
 	private String profileName = null;
+	private boolean profileFromCommandLine = false;
 	private File pluginExe = null;
 
 	private List<User> possibleUsers = new LinkedList<User>();
@@ -290,6 +291,7 @@ public class Profile implements Reloadable, Runnable {
 		
 		// if sufficient args on command line, use them
 		if (o.has(p.emtype) || o.has(p.dbtype)) {
+			profileFromCommandLine = true;
 			loadFromOptions(o);
 			return;
 		}
@@ -405,8 +407,8 @@ public class Profile implements Reloadable, Runnable {
 			templateName = p.template.value(o);
 		if (o.has(p.playerPath))
 			localPlayer = p.playerPath.value(o);
-		if (o.has(p.profileName)) 
-			profileName = p.profileName.value(o);
+//		if (o.has(p.profileName)) 
+			profileName = p.profileName.value(o); // we want to get default if not given
 		if (o.has(p.userName))
 			userName = p.userName.value(o);		
 		if (o.has(p.syncUrl))
@@ -422,7 +424,7 @@ public class Profile implements Reloadable, Runnable {
 		} else if (p.dbtype.value(o).equals("flat")) {
 			//String cfgFile = p.flatDbArg.value(o);
 			//db = new FlatFileDatabase(cfgFile);
-			System.err.println("Flat-file datbase support is not yet available.");
+			System.err.println("Flat-file database support is not yet available.");
 			System.exit(1);
 		} else {
 			// default to sqlite...?
@@ -439,7 +441,11 @@ public class Profile implements Reloadable, Runnable {
 					p.mtTrForce.values(o)
 			);
 		} else if (p.emtype.value(o).equals("local")) {
-
+			if (!o.has(p.localArg)) {
+				System.err.println("Error: Local episodes requested, but local-folders " +
+						"not provided");
+				System.exit(1);
+			}
 			epmgr = new FileSystemManager(p.localArg.value(o));	
 		} else {
 			// default to tversity
@@ -470,7 +476,7 @@ public class Profile implements Reloadable, Runnable {
 		STHandlerManager.getInstance().setStaticMessage(true);
 		StaticMessageHandler.getInstance().setBody();
 		System.out.print("Reloading... ");
-		if (!isSelected() && profileFile == null) {
+		if (!profileFromCommandLine && !isSelected() && profileFile == null) {
 			System.out.println("Failed (No profile chosen; will prompt)");
 			System.out.println("Server listening on port: " + getPort());
 			synchronized(reloading) {

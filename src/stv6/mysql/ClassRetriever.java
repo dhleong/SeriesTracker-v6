@@ -13,13 +13,33 @@ import stv6.database.MysqlDatabase;
 public class ClassRetriever<T> {	
 	private final ResultSet rs;
 	
-	private final Constructor<?> constructor;
+	private Constructor<?> constructor;
 	private Object[] initArgs;
 	
 	public ClassRetriever(MysqlDatabase db, PreparedStatement stmt, Class<T> asClass) throws SQLException {		
 		this.rs = db.wrapQuery(stmt);//.executeQuery();
 		
-		constructor = asClass.getConstructors()[0];
+		Constructor<?>[] constructors = asClass.getConstructors();
+	
+		if (constructors.length > 1) {
+			// multiple constructors... looked for one marked with
+			//	DatabaseConstructor annotation
+			for (Constructor<?> c : constructors) {
+				if (c.isAnnotationPresent(DatabaseConstructor.class)) {
+					constructor = c;
+					break;
+				}
+			}
+			
+			// sad face
+			if (constructor == null)
+				throw new RuntimeException("Class " + asClass.getCanonicalName() 
+						+ " has no DatabaseConstructor");
+		} else {
+		
+			constructor = asClass.getConstructors()[0];
+		}
+		
 		initArgs = new Object[ constructor.getParameterTypes().length ];		
 	}
 	
