@@ -10,8 +10,8 @@ import stv6.series.SeriesList;
 import stv6.series.TrackedSeries;
 import stv6.sync.IdUpdateData;
 import stv6.sync.SyncSettings;
-import stv6.sync.TrackData;
 import stv6.sync.SyncSettings.SyncPage;
+import stv6.sync.TrackData;
 
 public interface Database extends Reloadable {
 	
@@ -114,6 +114,13 @@ public interface Database extends Reloadable {
 	public long getLastSyncFor(SyncSettings settings, SyncPage syncPage);
 	
 	/**
+	 * Get a list of recent series for the given user
+	 * @param user
+	 * @return
+	 */
+	public List<Series> getRecentSeries(SeriesList list, User user);
+
+    /**
 	 * Retrieve the User with the given name. If it doesn't
 	 * 	exist, create it.
 	 * 

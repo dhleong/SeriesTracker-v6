@@ -13,8 +13,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
-
 import stv6.Profile;
 import stv6.STClient;
 import stv6.User;
@@ -27,10 +25,17 @@ import stv6.series.SeriesList;
 import stv6.series.TrackedSeries;
 import stv6.sync.IdUpdateData;
 import stv6.sync.SyncSettings;
-import stv6.sync.TrackData;
 import stv6.sync.SyncSettings.SyncPage;
+import stv6.sync.TrackData;
+
+import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
 public class MysqlDatabase implements Database {
+    
+    /**
+     * Max number of recent series to retrieve from a RECENT query
+     */
+    private static final int GET_RECENT_COUNT = 15;
 	
 	protected enum QueryType {
 		SERIES_CREATE("INSERT INTO series (series_id, series_name, added) " +
@@ -71,6 +76,10 @@ public class MysqlDatabase implements Database {
 		TRACK_GET_ONE("SELECT series_id, episode, last_view " +
 						"FROM tracks WHERE user_id = ? AND series_id = ? " +
 						"LIMIT 1"), 
+		TRACK_GET_RECENT("SELECT series_id, episode, last_view " +
+                        "FROM tracks WHERE user_id = ? " +
+                        "ORDER BY last_view DESC " +
+                        "LIMIT ?"),
 		USER_GET("SELECT user_id, user_name " +
 						"FROM users WHERE user_name LIKE ? " +
 						"LIMIT 1"), 
@@ -452,7 +461,48 @@ public class MysqlDatabase implements Database {
 		return 1;
 	}
 	
-	protected String[] getSchema() {
+	@Override
+    public List<Series> getRecentSeries(SeriesList list, User user) {
+        List<Series> ret = new LinkedList<Series>();
+        try {
+            PreparedStatement stmt = prepare(QueryType.TRACK_GET_RECENT);
+            stmt.setInt(1, user.getId());
+            stmt.setInt(2, GET_RECENT_COUNT);
+            ResultSet rs = wrapQuery(stmt);//.executeQuery();
+            int id;
+            BasicSeries original;
+            HashSet<Integer> hasIds = new HashSet<Integer>(); // for ensuring we get everything
+            while (rs.next()) {
+                id = rs.getInt(1);
+                if (list.contains(id)) {
+                    original = (BasicSeries) list.getById(id);
+                    hasIds.add(id);
+                    ret.add( new TrackedSeries(original, rs.getInt(2), rs.getLong(3)) );
+                }
+            }
+            stmt.close();
+            
+            // don't care? we only want recent...
+            /*
+            if (ret.size() < list.size()) {
+                // we don't have tracks for all series; make them
+                for (Series s : list) {
+                    if (!hasIds.contains(s.getId()))
+                        ret.add( new TrackedSeries((BasicSeries) s, -1, 0) );
+                }
+            }
+            */
+            
+        } catch (SQLException e) {          
+            e.printStackTrace();
+            System.err.println(" -> Couldn't fill tracks");
+            System.exit(1);     
+        }
+        
+        return ret;
+    }
+
+    protected String[] getSchema() {
 		return new String[] { 
 				"CREATE TABLE IF NOT EXISTS `config` ("+
 					  "`config_key` varchar(31) NOT NULL,"+
@@ -565,7 +615,8 @@ public class MysqlDatabase implements Database {
 		return ret;
 	}
 
-	public synchronized List<TrackData> getSyncNewTracks(SyncSettings syncSettings) {
+	@Override
+    public synchronized List<TrackData> getSyncNewTracks(SyncSettings syncSettings) {
 		List<TrackData> ret = new LinkedList<TrackData>();
 		try {
 			PreparedStatement stmt = prepare(QueryType.SYNC_GET_NEW_TRACKS);

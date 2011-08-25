@@ -4,6 +4,7 @@ import stv6.Profile;
 import stv6.User;
 import stv6.http.request.Request;
 import stv6.http.request.RequestHandler;
+import stv6.series.RecentSeries;
 import stv6.series.Series;
 import stv6.series.TrackedSeries;
 import stv6.templating.Templator.Template;
@@ -42,6 +43,12 @@ public class IndexHandler extends AbstractHandler implements RequestHandler {
 			}
 			
 			t.putObject(s);
+		}
+		
+		// TODO get recent for user
+		for (Series s : Profile.getInstance().getRecentSeries(r.getUser())) {
+		    // wrap to change the class name
+		    t.putObject(new RecentSeries(s));
 		}
 		
 		return true;

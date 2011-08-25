@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-
 import stv6.database.Database;
 import stv6.database.MysqlDatabase;
 import stv6.database.SqliteDatabase;
@@ -32,10 +31,10 @@ import stv6.series.SeriesList;
 import stv6.series.TrackedSeries;
 import stv6.sync.IdUpdateData;
 import stv6.sync.SyncSettings;
+import stv6.sync.SyncSettings.SyncPage;
 import stv6.sync.SyncTrackHandler;
 import stv6.sync.Synchronizer;
 import stv6.sync.TrackData;
-import stv6.sync.SyncSettings.SyncPage;
 
 public class Profile implements Reloadable, Runnable {
 	public final static String TEMPLATE_PATH = "template";  
@@ -44,7 +43,7 @@ public class Profile implements Reloadable, Runnable {
 	private int id = -1; // profile ID in the db
 	
 	private User globalUser = null;
-	private SeriesList series = new SeriesList();
+	private final SeriesList series = new SeriesList();
 	
 	private Database db = null;
 	private EpisodeManager epmgr = null;	
@@ -62,7 +61,7 @@ public class Profile implements Reloadable, Runnable {
 	private boolean profileFromCommandLine = false;
 	private File pluginExe = null;
 
-	private List<User> possibleUsers = new LinkedList<User>();
+	private final List<User> possibleUsers = new LinkedList<User>();
 
 	private Boolean reloading = Boolean.FALSE;
 	
@@ -124,6 +123,15 @@ public class Profile implements Reloadable, Runnable {
 	 */
 	public SeriesList getAllSeriesAsUser(User user) {
 		return db.getAllSeriesAsUser(series, user);
+	}
+	
+	/**
+	 * Return a list so that it's sorted for sure
+	 * @param user
+	 * @return
+	 */
+	public List<Series> getRecentSeries(User user) {
+	    return db.getRecentSeries(series, user);
 	}
 	
 	/**
@@ -457,7 +465,8 @@ public class Profile implements Reloadable, Runnable {
 		}
 	}
 	
-	public void reload() {
+	@Override
+    public void reload() {
 		
 		// make sure we only try to reload once
 		synchronized(reloading) {

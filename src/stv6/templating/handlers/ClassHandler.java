@@ -48,13 +48,15 @@ public class ClassHandler extends AbstractHandler implements TemplateCodeHandler
 		for (TemplateObject o : env.getObjectsFor(klass)) {
 			rdr.rewind();
 			oenv = env.getEnvironmentFor(o);	
+			oenv.setValue("FIRST", (i == 0) ? "1" : null);
+			oenv.setValue("NOTFIRST", (i != 0) ? "1" : null);
 			oenv.setValue("INDEX", String.valueOf(i++));			
 			Template.doTemplateLoop(rdr, oenv, out);
 		}
 	}
 	
 	private static class ClassReader extends TemplateReader {
-		private LinkedList<String> lines;
+		private final LinkedList<String> lines;
 		private Iterator<String> iter = null;
 		
 		private ClassReader() {
@@ -77,7 +79,8 @@ public class ClassHandler extends AbstractHandler implements TemplateCodeHandler
 			}
 		}
 		
-		public void rewind() {
+		@Override
+        public void rewind() {
 			iter = null;			
 		}
 	}
