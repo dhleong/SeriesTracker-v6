@@ -48,7 +48,7 @@ public class IndexHandler extends AbstractHandler implements RequestHandler {
 		// TODO get recent for user
 		for (Series s : Profile.getInstance().getRecentSeries(r.getUser())) {
 		    // wrap to change the class name
-		    t.putObject(new RecentSeries(s));
+		    t.putObject(new RecentSeries((TrackedSeries) s));
 		}
 		
 		return true;

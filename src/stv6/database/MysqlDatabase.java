@@ -462,8 +462,8 @@ public class MysqlDatabase implements Database {
 	}
 	
 	@Override
-    public List<Series> getRecentSeries(SeriesList list, User user) {
-        List<Series> ret = new LinkedList<Series>();
+    public List<TrackedSeries> getRecentSeries(SeriesList list, User user) {
+        List<TrackedSeries> ret = new LinkedList<TrackedSeries>();
         try {
             PreparedStatement stmt = prepare(QueryType.TRACK_GET_RECENT);
             stmt.setInt(1, user.getId());

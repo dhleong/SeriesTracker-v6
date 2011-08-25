@@ -130,7 +130,7 @@ public class Profile implements Reloadable, Runnable {
 	 * @param user
 	 * @return
 	 */
-	public List<Series> getRecentSeries(User user) {
+	public List<TrackedSeries> getRecentSeries(User user) {
 	    return db.getRecentSeries(series, user);
 	}
 	

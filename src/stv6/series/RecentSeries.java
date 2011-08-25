@@ -7,9 +7,9 @@ import stv6.templating.TemplateObject;
 
 public class RecentSeries implements Series, TemplateObject {
     
-    final Series mBase;
+    final TrackedSeries mBase;
     
-    public RecentSeries(Series s) {
+    public RecentSeries(TrackedSeries s) {
         mBase = s;
     }
 
@@ -37,11 +37,16 @@ public class RecentSeries implements Series, TemplateObject {
     public String getName() {
         return mBase.getName();
     }
+    
+    public boolean isDone() {
+        return isManaged() && (mBase.size() == mBase.getLastEpisode()+1);
+    }
 
     @Override
     public boolean isManaged() {
         return mBase.isManaged();
     }
+    
 
     @Override
     public void manageify(String localPath, ArrayList<BasicEpisode> eps) {

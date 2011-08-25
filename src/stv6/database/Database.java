@@ -118,7 +118,7 @@ public interface Database extends Reloadable {
 	 * @param user
 	 * @return
 	 */
-	public List<Series> getRecentSeries(SeriesList list, User user);
+	public List<TrackedSeries> getRecentSeries(SeriesList list, User user);
 
     /**
 	 * Retrieve the User with the given name. If it doesn't
