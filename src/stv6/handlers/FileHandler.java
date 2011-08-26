@@ -31,10 +31,14 @@ public class FileHandler implements RequestHandler {
 	@Override
 	public boolean handle(Request request, Response response) {
 		// skip the /files/
-		String path = request.path.replace('/', File.separatorChar).substring(7);
+		String path = request.path
+		    .replace('/', File.separatorChar)
+		    .replace('+', ' ')
+		    .replace("%20", " ").substring(7);
 		theFile = new File(path);
 		if (!theFile.exists()) {		
-			System.err.println("Cannot find: " + path + theFile.getAbsolutePath());
+			System.err.println("Cannot find: " + path + " (" +
+			        theFile.getAbsolutePath() + ")");
 			return false;
 		}
 		if (!theFile.canRead()) {
