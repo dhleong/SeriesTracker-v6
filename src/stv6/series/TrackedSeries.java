@@ -152,6 +152,7 @@ public class TrackedSeries implements Series {
 		
 		return null;
 	}
+	
 	public boolean isDone() {
 		return isManaged() && (base.episodes.size() == lastEpisode+1);
 	}

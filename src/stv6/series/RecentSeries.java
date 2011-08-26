@@ -32,6 +32,22 @@ public class RecentSeries implements Series, TemplateObject {
     public String getLink() {
         return mBase.getLink();
     }
+    
+    public String getNextLink() {
+        return mBase.getNextLink();
+    }
+    
+    public String getNextTitle() {
+        return mBase.getNextTitle();
+    }
+    
+    public String getPrevLink() {
+        return mBase.getPrevLink();
+    }
+    
+    public String getPrevTitle() {
+        return mBase.getPrevTitle();
+    }
 
     @Override
     public String getName() {
@@ -39,7 +55,7 @@ public class RecentSeries implements Series, TemplateObject {
     }
     
     public boolean isDone() {
-        return isManaged() && (mBase.size() == mBase.getLastEpisode()+1);
+        return mBase.isDone();
     }
 
     @Override
