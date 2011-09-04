@@ -2,10 +2,15 @@ package stv6;
 
 import java.io.IOException;
 
-import stv6.handlers.*;
+import stv6.handlers.BrowseHandler;
+import stv6.handlers.FileHandler;
+import stv6.handlers.IndexHandler;
+import stv6.handlers.PluginHandler;
+import stv6.handlers.ViewHandler;
 import stv6.handlers.settings.ManageSaveHandler;
 import stv6.handlers.settings.SeriesManageHandler;
 import stv6.handlers.settings.SettingsListHandler;
+import stv6.handlers.util.CoverHandler;
 import stv6.handlers.util.ProfileSelectHandler;
 import stv6.handlers.util.StaticMessageHandler;
 import stv6.handlers.util.UserSelectHandler;
@@ -32,6 +37,7 @@ public class SeriesTracker {
 		s.registerHandler(new ViewHandler());
 		s.registerHandler(new FileHandler());
 		s.registerHandler(new PluginHandler());
+		s.registerHandler(new CoverHandler());
 		
 		// settings handlers
 		s.registerHandler(new SettingsListHandler());

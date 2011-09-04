@@ -34,7 +34,7 @@
     <! else >
     <div class="series recent">
     <! endif >
-    <img src="files/covers/Bones+Season+6.jpg" class="series-cover hidden"><br>
+    <img src="covers/$id" class="series-cover"><br>
 <! else >
 <div class="series recent series-missing">
 <! endif >

@@ -91,6 +91,12 @@ position: inline;
 }
 
 .series-cover {
+max-height: 150px;
+max-width: 7em;
+}
+
+* html .series-cover {
+height: 150px;
 width: 7em;
 }
 
@@ -113,7 +119,7 @@ text-decoration: none;
 width: 6em;
 }
 a.series-link {
-background-color: #333333;
+background: url(title-bg.png);
 color: #EFEFEF;
 }
 .series-missing .series-link {

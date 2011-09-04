@@ -31,10 +31,10 @@ import stv6.series.SeriesList;
 import stv6.series.TrackedSeries;
 import stv6.sync.IdUpdateData;
 import stv6.sync.SyncSettings;
-import stv6.sync.SyncSettings.SyncPage;
 import stv6.sync.SyncTrackHandler;
 import stv6.sync.Synchronizer;
 import stv6.sync.TrackData;
+import stv6.sync.SyncSettings.SyncPage;
 
 public class Profile implements Reloadable, Runnable {
 	public final static String TEMPLATE_PATH = "template";  
@@ -159,6 +159,7 @@ public class Profile implements Reloadable, Runnable {
 	}
 	
 	/**
+	 * Note that this is NOT cached!
 	 * @return A SeriesList of all Series (as TrackedSeries)
 	 * 	available from the selected EpisodeManager 
 	 */
