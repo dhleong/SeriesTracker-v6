@@ -5,6 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
 <link rel="stylesheet" href="files/css/web2-new.css" type="text/css">
 <link rel="icon" type="image/icon" href="files/favicon.ico">
+<!-- script type="text/javascript" src="files/js/minmax-1.0.js"></script -->
 <script type="text/javascript" src="files/js/mootools-1.3.1-core.js"></script>
 <script type="text/javascript" src="files/js/utils.bridge.js"></script>
 <script type="text/javascript" src="files/js/letters.js"></script>
