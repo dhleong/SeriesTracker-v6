@@ -40,10 +40,22 @@
 <div class="series recent series-missing">
 <! endif >
 <! if:$nextLink >
+    <! if:$prevLink >
 <a href="$link" id="series-$id" 
     next="$nextTitle" nextLink="$nextLink" 
     prev="$prevTitle" prevLink="$prevLink"
     class="series-link">$name</a>
+    <! else >
+<a href="$link" id="series-$id" 
+    next="$nextTitle" nextLink="$nextLink" 
+    class="series-link">$name</a>
+    <! endif >
+<! elseif:$prevLink >
+<a href="$link" id="series-$id" 
+    prev="$prevTitle" prevLink="$prevLink"
+    class="series-link">$name</a>
+<! elseif:$isManaged >
+<a href="$link" id="series-$id" class="series-link">$name</a>
 <! else >
 <span class="series-link">$name</span>
 <! endif >
