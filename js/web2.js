@@ -84,7 +84,7 @@ var ajMore = new Bridge({
     url:'/browse',
     data: {template: 'web2'},
     onComplete: function(data) {
-        if (data.length < 2) {
+        if (data.length < 1) {
             alert('Error: No episodes');
             return;
         }

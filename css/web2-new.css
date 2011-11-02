@@ -70,7 +70,7 @@ width: 700em;
  * Recent series list
  */
 #recent-container-fix {
-margin-left: 80px;
+margin-left: 60px;
 position: relative;
 left: 0px;
 top: 0;
@@ -155,6 +155,7 @@ color: #DDDDDD;
 background-color: #FFB673;
 color: #333333;
 }
+
     
 /*
  * "All" series
@@ -206,6 +207,41 @@ font-size: 1.5em;
 font-style: italic;
 margin: -18px -18px 10px -18px;
 padding: 0.7em 18px;
+white-space: nowrap;
+}
+
+* html div#info-name {
+white-space: inherit;
+}
+
+/* semi hack for browser... long filename stretches */
+div#info-next-label {
+background-color: #015965;
+line-height: 1.5em;
+height: 1.5em;
+overflow: hidden;
+position: absolute;
+right: 0;
+text-align: right;
+max-width: 400px;
+white-space: nowrap;
+}
+
+div#info-options {
+padding-top: 1.5em;
+}
+
+/* undo for ps3 */
+* html div#info-next-label {
+overflow: visible;
+position: static;
+text-align: inherit;
+width: auto;
+white-space: inherit;
+}
+
+* html div#info-options {
+padding-top: 0px;
 }
 
 .info-option {
@@ -268,23 +304,31 @@ color: #333333;
  */
 
 .nav-left, .nav-right {
-background-color: #EFEFEF;
+background: #EFEFEF center no-repeat;
 display: block;
 height: 150px;
 line-height: 150px;
 position: absolute;
 text-align: center;
 top: 0;
-width: 80px;
+width: 60px;
 z-index: 10;
 }
 
 .nav-left {
+background-image: url('arrow-left.png');
 left: 0;
+}
+.nav-left:hover {
+background-image: url('arrow-left-hover.png');
 }
 
 .nav-right {
+background-image: url('arrow-right.png');
 right: 300px;
+}
+.nav-right:hover {
+background-image: url('arrow-right-hover.png');
 }
 
 /* util */

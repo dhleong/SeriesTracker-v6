@@ -23,9 +23,7 @@
 
 <div id="content">
 <div id="recent">
-<a id="recent-left" class="nav-left" href="#">
-&lt;&lt;
-</a>
+<a id="recent-left" class="nav-left" href="#"></a>
 <div id="recent-container-fix">
 <div class="nav-container" id="recent-container">
 <! class:recentseries >
@@ -42,17 +40,17 @@
 <! if:$nextLink >
     <! if:$prevLink >
 <a href="$link" id="series-$id" 
-    next="$nextTitle" nextLink="$nextLink" 
-    prev="$prevTitle" prevLink="$prevLink"
+    next="${clean>nextTitle}" nextLink="$nextLink" 
+    prev="${clean>prevTitle}" prevLink="$prevLink"
     class="series-link">$name</a>
     <! else >
 <a href="$link" id="series-$id" 
-    next="$nextTitle" nextLink="$nextLink" 
+    next="${clean>nextTitle}" nextLink="$nextLink" 
     class="series-link">$name</a>
     <! endif >
 <! elseif:$prevLink >
 <a href="$link" id="series-$id" 
-    prev="$prevTitle" prevLink="$prevLink"
+    prev="${clean>prevTitle}" prevLink="$prevLink"
     class="series-link">$name</a>
 <! elseif:$isManaged >
 <a href="$link" id="series-$id" class="series-link">$name</a>
@@ -63,15 +61,13 @@
 <! endclass >
 </div>
 </div>
-<a id="recent-right" class="nav-right" href="#">
-&gt;&gt;
-</a>
+<a id="recent-right" class="nav-right" href="#"></a>
 </div>
 
 <div id="letters-holder">
 <div id="letters">
 <a href="#" class="jump-link selected" id="letter-all">All</a>
-Quick Jump: 
+Jump: 
 <! class:series >
 <! if:$letter >
 <a href="#$letter" class="jump-link" id="letter-$letter">$letter</a>
@@ -97,8 +93,8 @@ Quick Jump:
     <! endif >
 <! if:$nextLink >
 <a href="$link" id="series-$id" 
-    next="$nextTitle" nextLink="$nextLink" 
-    prev="$prevTitle" prevLink="$prevLink"
+    next="${clean>nextTitle}" nextLink="$nextLink" 
+    prev="${clean>prevTitle}" prevLink="$prevLink"
     class="series-link">$name</a>
 <! else >
 <a href="$link" id="series-$id" class="series-link">$name</a>
