@@ -33,6 +33,11 @@
     <! else >
     <div class="series recent">
     <! endif >
+    <! if:$hasCover >
+    asdf
+    <! else >
+    Test
+    <! endif >
     <img src="covers/$id" class="series-cover"><br>
 <! else >
 <div class="series recent series-missing">

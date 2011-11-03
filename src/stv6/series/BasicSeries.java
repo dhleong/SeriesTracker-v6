@@ -1,8 +1,10 @@
 package stv6.series;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import stv6.episodes.BasicEpisode;
+import stv6.handlers.util.CoverHandler;
 import stv6.mysql.DatabaseConstructor;
 import stv6.templating.TemplateObject;
 
@@ -72,6 +74,21 @@ public class BasicSeries implements TemplateObject, Series {
 	 */
 	public String getName() {
 		return name;
+	}
+	
+	public boolean hasCover() {
+		if (localPath == null)
+			return false;
+		
+		File localFile = new File(localPath);
+		
+		File[] files = localFile.listFiles(CoverHandler.FILENAME_FILTER);
+		if (files == null || files.length == 0) {
+			return false;
+		}
+		
+		File theFile = files[0]; // pick first candidate
+		return theFile.exists();
 	}
 	
 	/* (non-Javadoc)
