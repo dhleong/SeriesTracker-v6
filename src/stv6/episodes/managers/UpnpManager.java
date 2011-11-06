@@ -24,14 +24,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import stv6.episodes.BasicEpisode;
-import stv6.episodes.Episode;
 import stv6.http.HttpRequestor;
 import stv6.http.request.Request;
 import stv6.http.request.Response;
-import stv6.series.BasicSeries;
-import stv6.series.Series;
-import stv6.series.SeriesList;
-import stv6.series.TrackedSeries;
 
 /**
  * Theoretically generic UPNP manager, but specifically
@@ -375,7 +370,7 @@ public class UpnpManager extends AbstractManager {
         }
     }
     
-    
+    /*
     public static final void main(String[] args) {
         UpnpManager man = new UpnpManager("192.168.11.3", true);
         man.reload();
@@ -394,4 +389,5 @@ public class UpnpManager extends AbstractManager {
             }
         }
     }
+    */
 }
