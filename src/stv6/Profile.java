@@ -456,11 +456,21 @@ public class Profile implements Reloadable, Runnable {
 						"not provided");
 				System.exit(1);
 			}
-			epmgr = new FileSystemManager(p.localArg.value(o));	
+			epmgr = new FileSystemManager(p.localArg.value(o));
+		} else if (p.emtype.value(o).equals("pms")) {
+		    // ps3 media server
+		    
+		    epmgr = new UpnpManager(STServer.getBroadcastingIp(), true);
+		    System.out.println("Warning: PMS must be running on the same computer is STv6");
 		} else if (p.emtype.value(o).equals("upnp")) {
 		    int upnpPort = p.upnpPortArg.value(o);
 		    
-		    epmgr = new UpnpManager(STServer.getBroadcastingIp(), upnpPort);
+		    if (o.has(p.localArg)) {
+	            epmgr = new UpnpManager(STServer.getBroadcastingIp(), upnpPort,
+	                    p.localArg.value(o));
+		    } else {
+		        epmgr = new UpnpManager(STServer.getBroadcastingIp(), upnpPort);
+		    }
 		    System.out.println("Warning: UPNP support is ALPHA, and NOT automatic!");
 		    System.out.println("The server must be local, and you must specify the port...");
 		} else {
@@ -723,7 +733,7 @@ public class Profile implements Reloadable, Runnable {
 				.defaultsTo("sqlite");
 			emtype = parser.acceptsAll( asList("e", "episodes"), "episode manager")
 				.withRequiredArg().ofType( String.class )
-				.describedAs("(tversity/mediatomb/local/upnp)")
+				.describedAs("(tversity/mediatomb/local/upnp/pms)")
 				.defaultsTo("tversity");
 			mysqldb = parser.accepts("mysql-db","mysql database name")
 				.withRequiredArg().ofType( String.class )
