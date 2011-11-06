@@ -109,8 +109,8 @@ public class UpnpManager extends AbstractManager {
                 
                 if (title != null && !title.startsWith("#-")) {
 //                System.out.println("id=" + id + " > " + title);
-                    subpaths.add(new Path(id, path.localDirectory 
-                            + File.separator + title));
+                    String local = path.localDirectory + File.separator + title;
+                    subpaths.add(new Path(id, mapLocal(local)));
                 }
             }
         }
@@ -182,6 +182,15 @@ public class UpnpManager extends AbstractManager {
         }
         
         return null;
+    }
+    
+    /**
+     * Make sure the local path exists. 
+     * @param localPath
+     * @return
+     */
+    private String mapLocal(String localPath) {
+        return localPath;
     }
     
     /*
