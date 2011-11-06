@@ -28,17 +28,14 @@
 <div class="nav-container" id="recent-container">
 <! class:recentseries >
 <! if:$isManaged >
-    <! if:$isDone >
-    <div class="series recent series-done">
-    <! else >
-    <div class="series recent">
-    <! endif >
-    <! if:$hasCover >
-    asdf
-    <! else >
-    Test
-    <! endif >
-    <img src="covers/$id" class="series-cover"><br>
+    <div class="series recent
+<! if:$isDone >
+series-done
+<! endif >
+<! if:$hasCover >
+has-cover
+<! endif >
+">
 <! else >
 <div class="series recent series-missing">
 <! endif >
@@ -47,21 +44,32 @@
 <a href="$link" id="series-$id" 
     next="${clean>nextTitle}" nextLink="$nextLink" 
     prev="${clean>prevTitle}" prevLink="$prevLink"
-    class="series-link">$name</a>
+    name="$name"
+    class="series-link">
     <! else >
 <a href="$link" id="series-$id" 
     next="${clean>nextTitle}" nextLink="$nextLink" 
-    class="series-link">$name</a>
+    name="$name"
+    class="series-link">
     <! endif >
 <! elseif:$prevLink >
 <a href="$link" id="series-$id" 
     prev="${clean>prevTitle}" prevLink="$prevLink"
-    class="series-link">$name</a>
+    name="$name"
+    class="series-link">
 <! elseif:$isManaged >
-<a href="$link" id="series-$id" class="series-link">$name</a>
+<a href="$link" name="$name" id="series-$id" class="series-link">
 <! else >
 <span class="series-link">$name</span>
 <! endif >
+<! if:$isManaged >
+    <! if:$hasCover >
+    <img src="covers/$id" class="series-cover">
+    <! else >
+    $name
+    <! endif >
+<! endif >
+</a>
 </div>
 <! endclass >
 </div>
