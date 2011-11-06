@@ -222,15 +222,17 @@ var load_more = function() {
 }
 
 var load_video = function(link) {
-    if ($('info').getStyle('height').indexOf('em') > -1) {
+    if (navigator.appName == 'PLAYSTATION 3') {
         // ps3 browser
         window.location = link;
     } else {
         // normal browser... open in new window?
         var win = window.open(link);//, '_blank', 'fullscreen=yes');
+        /*
         win.addEvent('unload', function() {
             //alert('closed');
         });
+        */
     }
 };
 
