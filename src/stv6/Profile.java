@@ -461,7 +461,7 @@ public class Profile implements Reloadable, Runnable {
 		    // ps3 media server
 		    
 		    epmgr = new UpnpManager(STServer.getBroadcastingIp(), true);
-		    System.out.println("Warning: PMS must be running on the same computer is STv6");
+		    System.out.println("Note: PMS must be running on the same computer as STv6");
 		} else if (p.emtype.value(o).equals("upnp")) {
 		    int upnpPort = p.upnpPortArg.value(o);
 		    

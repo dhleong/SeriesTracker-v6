@@ -61,9 +61,9 @@ public class CoverHandler implements RequestHandler {
 			return showDefault(response);
 		}
 		
-		if (series == null) {
-			return showDefault(response);
-		}
+//		if (series == null) {
+//			return showDefault(response);
+//		}
 		
 		String localPath = series.getLocalPath();
 		File localFile = new File(localPath);
@@ -89,7 +89,11 @@ public class CoverHandler implements RequestHandler {
 	}
 
 	private boolean showDefault(Response response) {
-		return showFile(response, new File("default-cover.png"));
+	    File def = new File("default-cover.png");
+	    if (def.exists())
+	        return showFile(response, def);
+	    
+	    return false;
 	}
 	
 	private boolean showFile(Response response, File theFile) {
