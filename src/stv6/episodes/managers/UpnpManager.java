@@ -1,8 +1,13 @@
 package stv6.episodes.managers;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -19,9 +24,14 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import stv6.episodes.BasicEpisode;
+import stv6.episodes.Episode;
 import stv6.http.HttpRequestor;
 import stv6.http.request.Request;
 import stv6.http.request.Response;
+import stv6.series.BasicSeries;
+import stv6.series.Series;
+import stv6.series.SeriesList;
+import stv6.series.TrackedSeries;
 
 /**
  * Theoretically generic UPNP manager, but specifically
@@ -43,20 +53,85 @@ public class UpnpManager extends AbstractManager {
     private static final String CLASS_FOLDER = "object.container.storageFolder";
     private static final String CLASS_VIDEO  = "object.item.videoItem";
     
+    private static final String DEFAULT_PROFILE_FILENAME = "PMS.conf";
+    private static final String ENV_PROFILE_PATH = "PMS_PROFILE";
+    private static final String PROPERTY_PROFILE_PATH = "pms.profile.path";
+    /** TODO This is NOT necessarily constant, and we should add a setting */
+    private static final String PROFILE_DIRECTORY_NAME = "PMS";
+    
+    private static final Pattern RESULT_PATTERN = Pattern.compile("<Result>(.*)</Result>");
+    
     private final String broadIp;
-    private final int upnpPort;
-    private final Pattern resultPattern;
+    private int upnpPort = -1;
+    private boolean isPms = false;
+    
+    private String localFoldersInfo;
+    private final List<Path> localFolders = new LinkedList<Path>();
     
     public UpnpManager(String broadcastingIp, int upnpPort) {
         this.broadIp = broadcastingIp;
         this.upnpPort = upnpPort;
+    }
+    
+    public UpnpManager(String broadcastIp, int upnpPort, String localFoldersInfo) {
+        this(broadcastIp, upnpPort);
         
-        resultPattern = Pattern.compile("<Result>(.*)</Result>");
+        this.localFoldersInfo = localFoldersInfo;
+    }
+    
+    public UpnpManager(String broadcastIp, boolean isPms) {
+        this.broadIp = broadcastIp;
+        
+        if (!isPms) 
+            return;
+        
+        this.isPms = true;
+        
+        reload(); // make sure we can load everything
     }
 
     @Override
     public void reload() {
-        // Do we need to do anything?
+        if (isPms) {
+            
+            // we can use some hax to get the information from the PMS.conf file
+            File pmsConf = getPmsProfile();
+            if (pmsConf == null || !pmsConf.exists()) {
+                throw new RuntimeException("Couldn't find PMS configuration.");
+            }
+            
+            // reset these to defaults
+            localFoldersInfo = null; 
+            upnpPort = -1;
+            
+            // load port and local folders
+            try {
+                BufferedReader r = new BufferedReader(new FileReader(pmsConf));
+                String line;
+                while ((line = r.readLine()) != null) {
+                    if (line.startsWith("folders")) {
+                        String[] parts = line.split(" = ");
+                        // PMS uses a comma instead of File.pathSeparator. Retarded...
+                        localFoldersInfo = parts[1].replace(",", File.pathSeparator);
+                    } else if (line.startsWith("port")) {
+                        String[] parts = line.split(" = ");
+                        upnpPort = Integer.parseInt(parts[1]);
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                // won't happen... we already confirmed it exists
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException("Couldn't read PMS configuration");
+            }
+            
+            if (upnpPort < 0)
+                upnpPort = 5001; // PMS default
+        }
+        
+        if (localFoldersInfo != null) {
+            FileSystemManager.loadFolderInfo(localFoldersInfo, localFolders );
+        }
     }
 
     @Override
@@ -78,13 +153,24 @@ public class UpnpManager extends AbstractManager {
 //            String id = attr.getNamedItem("id").getTextContent();
             String klass = findNamedChild(n, "upnp:class").getTextContent();
             if (CLASS_VIDEO.equals(klass)) {
-                String title = findNamedChild(n, "dc:title").getTextContent();
+//                String title = findNamedChild(n, "dc:title").getTextContent();
                 String link = findNamedChild(n, "res").getTextContent();
                 
-                if (title != null && link != null) {
-//                System.out.println("id=" + id + " > " + title);
-                    episodes.add(new BasicEpisode(title, link));
+                // nah, build the title from the link so we have the real filename
+                String title;
+                try {
+                    title = URLDecoder.decode(
+                            link.substring(link.lastIndexOf('/')+1), "UTF-8");
+
+                    if (title != null && link != null) {
+//                    System.out.println("id=" + id + " > " + title);
+                        episodes.add(new BasicEpisode(title, link));
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    // shouldn't happen
+                    e.printStackTrace();
                 }
+                
             }
         }
         
@@ -147,7 +233,7 @@ public class UpnpManager extends AbstractManager {
                 return null;
             }
             
-            Matcher m = resultPattern.matcher(resp.getBody());
+            Matcher m = RESULT_PATTERN.matcher(resp.getBody());
             if (!m.find()) {
                 // TODO
                 return null;
@@ -190,23 +276,122 @@ public class UpnpManager extends AbstractManager {
      * @return
      */
     private String mapLocal(String localPath) {
+        if (localFoldersInfo == null || localFolders.size() == 0)
+            return localPath; // nothing to do
+        
+        File f = new File(localPath);
+        if (f.exists())
+            return localPath; // it's fine
+        
+        String testedPath;
+        for (Path p : localFolders) {
+            testedPath = p.localDirectory + File.separator + localPath;
+            f = new File(testedPath);
+            if (f.exists())
+                return testedPath;
+            
+            // the name of the localDir could also be the first 
+            //  item of localPath
+            int lastSepPos = p.localDirectory.lastIndexOf(File.separatorChar);
+            if (localPath.startsWith(
+                    p.localDirectory.substring(lastSepPos))) {
+                testedPath = p.localDirectory.substring(0, lastSepPos) + localPath;
+                f = new File(testedPath);
+                if (f.exists())
+                    return testedPath;
+            }
+        }
+        
+        // oh well
         return localPath;
     }
     
-    /*
+    /**
+     * Find the PMS.conf file with Playstation Media Server's config data
+     * @return
+     */
+    private static File getPmsProfile() {
+        // first try the system property, typically set via the profile chooser
+        String profile = System.getProperty(PROPERTY_PROFILE_PATH);
+
+        // failing that, try the environment variable
+        if (profile == null) {
+            profile = System.getenv(ENV_PROFILE_PATH);
+        }
+        
+        File profileDirectory = null;
+
+        if (profile != null) {
+            File f = new File(profile);
+
+            // if it exists, we know whether it's a file or directory
+            // otherwise, it must be a file since we don't autovivify directories
+
+            if (f.exists() && f.isDirectory()) {
+                profileDirectory = f.getAbsoluteFile();
+                return new File(f, DEFAULT_PROFILE_FILENAME).getAbsoluteFile();
+            } else { // doesn't exist or is a file (i.e. not a directory)
+                return f.getAbsoluteFile();
+            }
+        } else {
+            
+            String profileDir = null;
+            String os = System.getProperty("os.name").toLowerCase();
+
+            if (os.indexOf( "win" ) >= 0) {
+                String programData = System.getenv("ALLUSERSPROFILE");
+                if (programData != null) {
+                    profileDir = String.format("%s\\%s", programData, PROFILE_DIRECTORY_NAME);
+                } else {
+                    profileDir = ""; // i.e. current (working) directory
+                }
+            } else if (os.indexOf( "mac" ) >= 0) {
+                profileDir = String.format(
+                        "%s/%s/%s",
+                        System.getProperty("user.home"),
+                        "/Library/Application Support",
+                        PROFILE_DIRECTORY_NAME
+                );
+            } else {
+                String xdgConfigHome = System.getenv("XDG_CONFIG_HOME");
+
+                if (xdgConfigHome == null) {
+                    profileDir = String.format("%s/.config/%s", System.getProperty("user.home"), PROFILE_DIRECTORY_NAME);
+                } else {
+                    profileDir = String.format("%s/%s", xdgConfigHome, PROFILE_DIRECTORY_NAME);
+                }
+            }
+
+            File f = new File(profileDir);
+
+            if ((f.exists() || f.mkdir()) && f.isDirectory()) {
+                profileDirectory = f.getAbsoluteFile();
+            } else {
+//                PROFILE_DIRECTORY = FilenameUtils.normalize(new File("").getAbsolutePath());
+                return null; // no ideas
+            }
+
+            return new File(profileDirectory, DEFAULT_PROFILE_FILENAME).getAbsoluteFile();
+        }
+    }
+    
+    
     public static final void main(String[] args) {
-        UpnpManager man = new UpnpManager("192.168.11.2", 49000);
+        UpnpManager man = new UpnpManager("192.168.11.3", true);
+        man.reload();
+        System.out.println("Got port: " + man.upnpPort);
+        System.out.println("Got locals: " + man.localFoldersInfo);
         System.out.println("Fetching series...");
         SeriesList list = man.getAvailableSeries();
         System.out.println("done " + list.size());
         for (Series s : list) {
             System.out.println("Found: " + s.getName());
             if (s.isManaged()) {
-                for (Episode e : new TrackedSeries((BasicSeries)s, 0, 0).getEpisodes()) {
-                    System.out.println(" - " + e.getTitle() + ": " + e.getLink());
+                TrackedSeries t = new TrackedSeries((BasicSeries)s, 0, 0);
+                for (Episode e : t.getEpisodes()) {
+                    System.out.println(" - " + e.getTitle() + ": " + t.getLocalPathFor(e));
                 }
             }
         }
     }
-    */
 }
