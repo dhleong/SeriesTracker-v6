@@ -56,7 +56,7 @@ public class UpnpManager extends AbstractManager {
     
     private static final Pattern RESULT_PATTERN = Pattern.compile("<Result>(.*)</Result>");
     
-    private final String broadIp;
+    private String broadIp;
     private int upnpPort = -1;
     private boolean isPms = false;
     
@@ -111,6 +111,9 @@ public class UpnpManager extends AbstractManager {
                     } else if (line.startsWith("port")) {
                         String[] parts = line.split(" = ");
                         upnpPort = Integer.parseInt(parts[1]);
+                    } else if (line.startsWith("hostname")) {
+                    	String[] parts = line.split(" = ");
+                    	broadIp = parts[1];
                     }
                 }
             } catch (FileNotFoundException e) {
@@ -201,6 +204,7 @@ public class UpnpManager extends AbstractManager {
 
     private Document browsePage(String path) {
         try {
+        	System.out.println("[debug:UpnpManager] " + broadIp + ":" + upnpPort + " -- " + path);
             HttpRequestor r = HttpRequestor.post("http://" + 
                     broadIp + CONTENT_PATH, upnpPort);
             Request req = r.getRequest();
@@ -216,7 +220,7 @@ public class UpnpManager extends AbstractManager {
             body.append("<ObjectID>");
             body.append(path);
             body.append("</ObjectID>");
-            body.append("<BrowseFlag>BrowseDirectChildren</BrowseFlag>");
+//            body.append("<BrowseFlag>BrowseDirectChildren</BrowseFlag>");
             body.append("</u:Browse>");
             body.append("</s:Body>");
             body.append("</s:Envelope>");
