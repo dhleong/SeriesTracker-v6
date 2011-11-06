@@ -113,7 +113,8 @@ public class MediaTombManager extends AbstractManager implements EpisodeManager 
 	}
 	
 	
-	protected Iterable<Path> getSubpathsFor(Path path) {
+	@Override
+    protected Iterable<Path> getSubpathsFor(Path path) {
 		
 		// recurse into subdirectories
 		LinkedList<Path> subpaths = new LinkedList<Path>();
@@ -213,7 +214,7 @@ public class MediaTombManager extends AbstractManager implements EpisodeManager 
 	
 	private class SubtitleMatchingFilter implements FilenameFilter {
 		
-		private String original;
+		private final String original;
 		
 		public SubtitleMatchingFilter(String original) {
 			this.original = original.substring(0, original.lastIndexOf('.'));
