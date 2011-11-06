@@ -24,6 +24,7 @@ import stv6.episodes.EpisodeManager;
 import stv6.episodes.managers.FileSystemManager;
 import stv6.episodes.managers.MediaTombManager;
 import stv6.episodes.managers.TversityManager;
+import stv6.episodes.managers.UpnpManager;
 import stv6.handlers.util.StaticMessageHandler;
 import stv6.http.request.Request;
 import stv6.series.Series;
@@ -31,10 +32,10 @@ import stv6.series.SeriesList;
 import stv6.series.TrackedSeries;
 import stv6.sync.IdUpdateData;
 import stv6.sync.SyncSettings;
+import stv6.sync.SyncSettings.SyncPage;
 import stv6.sync.SyncTrackHandler;
 import stv6.sync.Synchronizer;
 import stv6.sync.TrackData;
-import stv6.sync.SyncSettings.SyncPage;
 
 public class Profile implements Reloadable, Runnable {
 	public final static String TEMPLATE_PATH = "template";  
@@ -456,6 +457,12 @@ public class Profile implements Reloadable, Runnable {
 				System.exit(1);
 			}
 			epmgr = new FileSystemManager(p.localArg.value(o));	
+		} else if (p.emtype.value(o).equals("upnp")) {
+		    int upnpPort = p.upnpPortArg.value(o);
+		    
+		    epmgr = new UpnpManager(STServer.getBroadcastingIp(), upnpPort);
+		    System.out.println("Warning: UPNP support is ALPHA, and NOT automatic!");
+		    System.out.println("The server must be local, and you must specify the port...");
 		} else {
 			// default to tversity
 			
@@ -661,10 +668,11 @@ public class Profile implements Reloadable, Runnable {
 	}
 
 	private static class ArgumentParser {
-		private static final ArgumentParser instance_ = new ArgumentParser();
+
+        private static final ArgumentParser instance_ = new ArgumentParser();
 		
 		public OptionParser parser;
-		public OptionSpec<Integer> portArg, tvportArg, mtportArg, agedTime;
+		public OptionSpec<Integer> portArg, tvportArg, mtportArg, upnpPortArg, agedTime;
 		public OptionSpec<String> template, playerPath, userName, profileName,
 			dbtype, emtype, mysqldb, mysqlserver, mysqluser, mysqlpass, 
 			dbFileArg, mtTrForce, mtTrProfile, localArg, syncUrl, syncPass;
@@ -715,7 +723,7 @@ public class Profile implements Reloadable, Runnable {
 				.defaultsTo("sqlite");
 			emtype = parser.acceptsAll( asList("e", "episodes"), "episode manager")
 				.withRequiredArg().ofType( String.class )
-				.describedAs("(tversity/mediatomb/local)")
+				.describedAs("(tversity/mediatomb/local/upnp)")
 				.defaultsTo("tversity");
 			mysqldb = parser.accepts("mysql-db","mysql database name")
 				.withRequiredArg().ofType( String.class )
@@ -749,6 +757,9 @@ public class Profile implements Reloadable, Runnable {
 					"The profile to use for transcoding")
 				.withRequiredArg().ofType( String.class )
 				.defaultsTo("video-common");
+			upnpPortArg = parser.accepts("upnp-port", "UPNP server's port")
+			    .withOptionalArg().ofType( Integer.class )
+			    .defaultsTo(5001);
 			localArg = parser.accepts("local-folders", "folders, separated" +
 					" by \";\", or a filename with folders on separate lines")
 				.withRequiredArg().ofType( String.class )
