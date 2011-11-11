@@ -2,7 +2,7 @@ package stv6.http.pools;
 
 import stv6.http.Client;
 
-public interface ClientList extends Iterable<Client> {
+public interface ClientList {//extends Iterable<Client> {
 	
 	/**
 	 * @param c
@@ -11,5 +11,5 @@ public interface ClientList extends Iterable<Client> {
 	 */
 	public boolean add(Client c);
 	
-	public int size();
+//	public int size();
 }

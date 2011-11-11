@@ -1,6 +1,7 @@
 package stv6.http.pools;
 
-import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.concurrent.Semaphore;
 
 import stv6.http.Client;
 
@@ -15,112 +16,65 @@ import stv6.http.Client;
  * @author dhleong
  *
  */
-public class ClientPool implements Runnable, Client, ClientList {
-	/**
+public class ClientPool implements ClientList {
+    
+    
+	private final class ClientThread implements Runnable {
+
+	    private final boolean mRunning = true;
+
+        @Override
+        public void run() {
+            while (mRunning) {
+                try {
+                    mClientsWaiting.acquire();
+                } catch (final InterruptedException e) {
+                    // we shouldn't typically get interrupted,
+                    //  so probably we just want to stop
+                    break;
+                }
+                
+                Client current = mClients.removeFirst();
+                
+                // process 
+                current.process();
+            }
+        }
+
+    }
+
+    /**
 	 * Max # of kids before reorganizing
 	 */
-	public static final int MAX_CHILDREN = 63;
-	
-	private ClientList children;
-	private boolean isParent = false; // if true, that means all children are actually pools
-	
-	private Thread thisThread;
-	
-	private static int ID = 0;
-	public int id;
+	public static final int DEFAULT_THREADS = 16;
+    private final ClientThread[] mThreads;
+    
+    private final Semaphore mClientsWaiting = new Semaphore(0);
+    private final LinkedList<Client> mClients = new LinkedList<Client>();
 	
 	public ClientPool() {
-		children = new ChildList();
-		thisThread = new Thread(this);
-		thisThread.start();
-		
-		id = ++ID;
+	    this(DEFAULT_THREADS);
 	}
 	
-	public ClientPool(ChildList kids) {
-		//children = new ParentList( kids );
-		children = kids;
-		thisThread = new Thread(this);
-		thisThread.start();
-		
-		id = ++ID;
+	public ClientPool(int threadCount) {
+	    mThreads = new ClientThread[threadCount];
+
+        for (int i=0; i<threadCount; i++) {
+            mThreads[i] = new ClientThread();
+            // go ahead and start the thread
+            final Thread t = new Thread(mThreads[i], "ClientPoolThread-" + i);
+            t.setDaemon(true); // daemon thread please
+            t.start(); // gogogo
+        }
 	}
 	
-	public boolean add(Client c) {
-		synchronized(children) {
-			boolean added = children.add(c);
-			if (added)
-				return true;
-			else {
-				// make a parent?
-				children = new ParentList( (ChildList) children );
-				children.add(c);
-				isParent = true;
-				return false;
-			} 
-		}
+	@Override
+    public boolean add(Client c) {
+	    mClients.addFirst(c);
+
+        // v-up
+        mClientsWaiting.release();
+        return true;
 	}
 
-	/**
-	 * If this is true, it means all of the clients we had are done
-	 */
-	@Override
-	public boolean isDead() {
-		synchronized(children) {
-			return !isParent && size() == 0;
-		}
-	}
-
-	@Override
-	public Iterator<Client> iterator() {
-		return children.iterator();
-	}
-	
-	/**
-	 * 
-	 */
-	@Override
-	public void process() {
-		
-	}
-
-
-	@Override
-	public void run() {
-		while (thisThread == Thread.currentThread()) {
-			if (isParent && size() == 0) {
-				// revert from being a parent
-				isParent = false;
-				children = new ChildList();
-			}
-			
-			synchronized( children ) {
-				Iterator<Client> kids = children.iterator();
-				Client current;
-				while(kids.hasNext()) {
-					current = kids.next();
-					
-					// if it's dead, prune it
-					if (current.isDead()) {
-						kids.remove();
-						continue;
-					}
-					
-					// process 
-					current.process();
-				}
-			}
-			
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-		}
-	}
-	
-	public int size() {
-		synchronized(children) {
-			return children.size();
-		}
-	}
 }
