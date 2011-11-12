@@ -105,12 +105,12 @@ Jump:
     <div class="series">
     <! endif >
 <! if:$nextLink >
-<a href="$link" id="series-$id" 
+<a href="$link" id="series-$id" name="$name"
     next="${clean>nextTitle}" nextLink="$nextLink" 
     prev="${clean>prevTitle}" prevLink="$prevLink"
     class="series-link">$name</a>
 <! else >
-<a href="$link" id="series-$id" class="series-link">$name</a>
+<a href="$link" name="$name" id="series-$id" class="series-link">$name</a>
 <! endif >
 
 <! else >
