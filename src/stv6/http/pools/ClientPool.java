@@ -46,7 +46,7 @@ public class ClientPool implements ClientList {
     /**
 	 * Max # of kids before reorganizing
 	 */
-	public static final int DEFAULT_THREADS = 16;
+	public static final int DEFAULT_THREADS = 8;
     private final ClientThread[] mThreads;
     
     private final Semaphore mClientsWaiting = new Semaphore(0);

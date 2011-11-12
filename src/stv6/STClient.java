@@ -34,8 +34,10 @@ public class STClient implements Client {
 	@Override
 	public void process() {
 		// let someone else work until we're ready
-		if (!skt.ready())
-			return;
+		while (!skt.ready()) {
+		    Thread.yield();
+		}
+			
 		
 		// see what they want to do
 		Request r;
