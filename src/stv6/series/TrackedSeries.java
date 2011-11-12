@@ -204,4 +204,8 @@ public class TrackedSeries implements Series {
 		this.lastView = lastView;
 	}
 
+	public boolean hashCover() {
+		return base.hasCover();
+	}
+
 }

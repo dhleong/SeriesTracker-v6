@@ -7,8 +7,8 @@ import stv6.http.request.Request;
 import stv6.http.request.Response;
 
 public class HttpRequestor implements Runnable {
-	private HttpSocket skt;
-	private Request r;
+	private final HttpSocket skt;
+	private final Request r;
 	private HttpResponseCallback cb;
 	
 	private HttpRequestor(Request r, HttpSocket skt) {
@@ -59,7 +59,7 @@ public class HttpRequestor implements Runnable {
 		}
 	}
 	
-	private static HttpRequestor createFor(String url, String method) 
+	private static HttpRequestor createFor(String url, String method, int port) 
 			throws UnknownHostException, IOException {
 		if (!url.startsWith("http://")) {
 			// unsupported protocol
@@ -76,17 +76,26 @@ public class HttpRequestor implements Runnable {
 			path = url.substring(pos);
 		}
 		
-		HttpSocket skt = new HttpSocket(server, 80);
+		
+		HttpSocket skt = new HttpSocket(server, port);
 		Request r = new Request(method, path, skt);
 		
 		return new HttpRequestor(r, skt);
 	}
 	
 	public static HttpRequestor get(String url) throws UnknownHostException, IOException {
-		return createFor(url, "GET");
+		return get(url, 80);
+	}
+	
+	public static HttpRequestor get(String url, int port) throws UnknownHostException, IOException {
+	    return createFor(url, "GET", port);
 	}
 	
 	public static HttpRequestor post(String url) throws UnknownHostException, IOException {
-		return createFor(url, "POST");
+        return post(url, 80);
+    }
+	
+	public static HttpRequestor post(String url, int port) throws UnknownHostException, IOException {
+		return createFor(url, "POST", port);
 	}
 }

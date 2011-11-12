@@ -54,6 +54,10 @@ public class RecentSeries implements Series, TemplateObject {
         return mBase.getName();
     }
     
+    public boolean hasCover() {
+    	return mBase.hashCover();
+    }
+    
     public boolean isDone() {
         return mBase.isDone();
     }

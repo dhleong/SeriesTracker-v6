@@ -43,7 +43,7 @@ var browse_series = function(e) {
         .set('info-id', id)
         .set('info-nextLink', this.get('nextLink'))
         .set('info-prevLink', this.get('prevLink'));
-    $('info-name').set('text', this.get('text'));
+    $('info-name').set('text', this.get('name'));
 
     var parent = $('series-'+id).getParent();
     if (parent.hasClass('series-missing')) {
@@ -84,7 +84,7 @@ var ajMore = new Bridge({
     url:'/browse',
     data: {template: 'web2'},
     onComplete: function(data) {
-        if (data.length < 2) {
+        if (data.length < 1) {
             alert('Error: No episodes');
             return;
         }
@@ -174,7 +174,9 @@ var ajView = new Bridge({
 var bind_view = function(el, ep) {
     el.addEvent('click', (function(e) {
         new Event(e).stop();
-        $('more-list').getElement('.last-viewed').removeClass('last-viewed');
+        var last = $('more-list').getElement('.last-viewed');
+        if (last != null)
+            last.removeClass('last-viewed');
         $('ep-' + this).addClass('last-viewed');
         load_episode(this, 1);
     }).bind(ep));

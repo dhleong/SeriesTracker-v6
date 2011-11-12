@@ -7,6 +7,7 @@ import java.util.List;
 import stv6.http.request.variables.Variable;
 import stv6.templating.TemplateObject;
 import stv6.templating.environment.Environment;
+import stv6.templating.functions.CleanFunction;
 import stv6.templating.functions.EncodeFunction;
 import stv6.templating.functions.TemplateFunction;
 
@@ -18,6 +19,7 @@ public abstract class AbstractHandler {
 		// I should really make a manager for this instead of a HashMap, but
 		//	whatever... I've only one function right now, anyway
 		functions.put("encode", new EncodeFunction());
+		functions.put("clean", new CleanFunction());
 	}
 
 	public static void defaultAction(StringBuilder line, Environment env, Appendable out) throws IOException {

@@ -5,6 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
 <link rel="stylesheet" href="files/css/web2-new.css" type="text/css">
 <link rel="icon" type="image/icon" href="files/favicon.ico">
+<!-- script type="text/javascript" src="files/js/minmax-1.0.js"></script -->
 <script type="text/javascript" src="files/js/mootools-1.3.1-core.js"></script>
 <script type="text/javascript" src="files/js/utils.bridge.js"></script>
 <script type="text/javascript" src="files/js/letters.js"></script>
@@ -22,43 +23,64 @@
 
 <div id="content">
 <div id="recent">
-<a id="recent-left" class="nav-left" href="#">
-&lt;&lt;
-</a>
+<a id="recent-left" class="nav-left" href="#"></a>
 <div id="recent-container-fix">
 <div class="nav-container" id="recent-container">
 <! class:recentseries >
 <! if:$isManaged >
-    <! if:$isDone >
-    <div class="series recent series-done">
-    <! else >
-    <div class="series recent">
-    <! endif >
-    <img src="files/covers/Bones+Season+6.jpg" class="series-cover hidden"><br>
+    <div class="series recent
+<! if:$isDone >
+series-done
+<! endif >
+<! if:$hasCover >
+has-cover
+<! endif >
+">
 <! else >
 <div class="series recent series-missing">
 <! endif >
 <! if:$nextLink >
+    <! if:$prevLink >
 <a href="$link" id="series-$id" 
-    next="$nextTitle" nextLink="$nextLink" 
-    prev="$prevTitle" prevLink="$prevLink"
-    class="series-link">$name</a>
+    next="${clean>nextTitle}" nextLink="$nextLink" 
+    prev="${clean>prevTitle}" prevLink="$prevLink"
+    name="$name"
+    class="series-link">
+    <! else >
+<a href="$link" id="series-$id" 
+    next="${clean>nextTitle}" nextLink="$nextLink" 
+    name="$name"
+    class="series-link">
+    <! endif >
+<! elseif:$prevLink >
+<a href="$link" id="series-$id" 
+    prev="${clean>prevTitle}" prevLink="$prevLink"
+    name="$name"
+    class="series-link">
+<! elseif:$isManaged >
+<a href="$link" name="$name" id="series-$id" class="series-link">
 <! else >
 <span class="series-link">$name</span>
 <! endif >
+<! if:$isManaged >
+    <! if:$hasCover >
+    <img src="covers/$id" class="series-cover">
+    <! else >
+    $name
+    <! endif >
+<! endif >
+</a>
 </div>
 <! endclass >
 </div>
 </div>
-<a id="recent-right" class="nav-right" href="#">
-&gt;&gt;
-</a>
+<a id="recent-right" class="nav-right" href="#"></a>
 </div>
 
 <div id="letters-holder">
 <div id="letters">
 <a href="#" class="jump-link selected" id="letter-all">All</a>
-Quick Jump: 
+Jump: 
 <! class:series >
 <! if:$letter >
 <a href="#$letter" class="jump-link" id="letter-$letter">$letter</a>
@@ -83,12 +105,12 @@ Quick Jump:
     <div class="series">
     <! endif >
 <! if:$nextLink >
-<a href="$link" id="series-$id" 
-    next="$nextTitle" nextLink="$nextLink" 
-    prev="$prevTitle" prevLink="$prevLink"
+<a href="$link" id="series-$id" name="$name"
+    next="${clean>nextTitle}" nextLink="$nextLink" 
+    prev="${clean>prevTitle}" prevLink="$prevLink"
     class="series-link">$name</a>
 <! else >
-<a href="$link" id="series-$id" class="series-link">$name</a>
+<a href="$link" name="$name" id="series-$id" class="series-link">$name</a>
 <! endif >
 
 <! else >

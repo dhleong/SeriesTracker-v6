@@ -53,7 +53,7 @@ public class ObjectEnvironment extends GlobalEnvironment implements Environment 
 	}
 	
 	private Method getObjMethod(String name) {
-		if (!name.startsWith("is")) {
+		if (!(name.startsWith("is") || name.startsWith("has"))) {
 			name = String.format("get%c%s", 
 					Character.toUpperCase( name.charAt(0) ), name.substring(1)
 			);

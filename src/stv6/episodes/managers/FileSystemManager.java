@@ -23,7 +23,7 @@ public class FileSystemManager extends AbstractManager implements EpisodeManager
 	private final FolderFilter myFolderFilter = new FolderFilter();
 	
 	private final String folderInfo;
-	private List<Path> localFolders = new LinkedList<Path>();
+	private final List<Path> localFolders = new LinkedList<Path>();
 
 	/**
 	 * The only constructor. It is designed to have its
@@ -37,55 +37,6 @@ public class FileSystemManager extends AbstractManager implements EpisodeManager
 	public FileSystemManager(String folderInfo) {
 		this.folderInfo = folderInfo;
 	}	
-	
-	
-	private void addLocalFolders(String...paths) {
-		localFolders.clear();
-		
-		for (String path : paths) 
-			addLocalFolder( path );		
-	}
-	
-	private void addLocalFolders(List<String> paths) {
-		localFolders.clear();
-		
-		for (String path : paths) 
-			addLocalFolder( path );		
-	}
-	
-	/**
-	 * Attempts to add "path" to the list of local folders;
-	 * 	Ignores the path if invalid or could not be found
-	 * 
-	 * If path matches "@NAME/..", we assume it's a Windows
-	 * 	system and attempt to find an external harddrive
-	 * 	whose label matches NAME
-	 * @param path
-	 */
-	private void addLocalFolder(String path) {
-		if (path.charAt(0) == '@') {
-			int end = path.indexOf( File.separatorChar );
-			if (end < 0)
-				return;
-			
-			String needle = path.substring(1, end);
-			String actualPath = path.substring(end+1);
-			
-			File[] roots = File.listRoots();
-			FileSystemView v = FileSystemView.getFileSystemView();
-			String label;
-			for (File f : roots) {
-				label = v.getSystemDisplayName(f);
-				if (label.startsWith(needle)) {
-					localFolders.add( new Path(f.getAbsolutePath() + actualPath) );
-					break;
-				}
-			}
-		} else {
-			// just add it
-			localFolders.add( new Path(path) );
-		}
-	}
 
 	@Override
 	protected List<Path> getBasePaths() {
@@ -115,61 +66,112 @@ public class FileSystemManager extends AbstractManager implements EpisodeManager
 		
 		return paths;
 	}
-	
-	private void loadFolderInfo() {
-		// load the local folders list
-		if (folderInfo.contains(File.pathSeparator)) {
-			// it's definitely a list
-			String[] paths = folderInfo.split(File.pathSeparator);
-			addLocalFolders( paths );
-		} else {
-			File cfgFile = new File(folderInfo);
-			if (!cfgFile.exists() && folderInfo.charAt(0) != '@') {
-				System.out.println(" - No folders provided; Failed.");
-				System.err.println("---------- DEBUG ----------");
-				System.err.println(" FolderInfo: " + folderInfo);
-				System.err.println(" file = " + cfgFile);
-				if (cfgFile != null) {
-					System.err.println(" file.path = " + cfgFile.getAbsolutePath());
-					System.err.println(" file.exists = " + cfgFile.exists());
-					System.err.println(" file.canRead = " + cfgFile.canRead());
-					System.err.println(" file.isDirectory = " + cfgFile.isDirectory());
-				}
-				System.err.println("---------- DEBUG ----------");
-				System.exit(1);
-			} 
-				
-			if (cfgFile.isFile()) {
-				// it's file; read line by line
-				ArrayList<String> folders = new ArrayList<String>();
-				try {
-					BufferedReader reader = new BufferedReader(
-							new InputStreamReader(
-							new DataInputStream(
-									new FileInputStream(cfgFile.getCanonicalFile())
-									))
-							);
-					String line;
-					while ((line=reader.readLine()) != null)
-						folders.add(line);
-					
-					addLocalFolders( folders );
-				} catch (IOException e) {
-					System.out.println(" - Could not read folders from file " 
-							+ folderInfo);
-					System.exit(1);
-				}
-			} else {
-				// it's a single folder
-				addLocalFolders( folderInfo );
-			}
-		} 
-	}
+
 
 	@Override
 	public void reload() {
-		loadFolderInfo();
+		loadFolderInfo(folderInfo, localFolders);
 	}
+	
+   
+    
+    private static void addLocalFolders(List<Path> localFolders, String...paths) {
+        localFolders.clear();
+        
+        for (String path : paths) 
+            addLocalFolder( localFolders, path );     
+    }
+    
+    private static void addLocalFolders(List<Path> localFolders, List<String> paths) {
+        localFolders.clear();
+        
+        for (String path : paths) 
+            addLocalFolder( localFolders, path );     
+    }
+    
+    /**
+     * Attempts to add "path" to the list of local folders;
+     *  Ignores the path if invalid or could not be found
+     * 
+     * If path matches "@NAME/..", we assume it's a Windows
+     *  system and attempt to find an external harddrive
+     *  whose label matches NAME
+     * @param path
+     */
+    private static void addLocalFolder(List<Path> localFolders, String path) {
+        if (path.charAt(0) == '@') {
+            int end = path.indexOf( File.separatorChar );
+            if (end < 0)
+                return;
+            
+            String needle = path.substring(1, end);
+            String actualPath = path.substring(end+1);
+            
+            File[] roots = File.listRoots();
+            FileSystemView v = FileSystemView.getFileSystemView();
+            String label;
+            for (File f : roots) {
+                label = v.getSystemDisplayName(f);
+                if (label.startsWith(needle)) {
+                    localFolders.add( new Path(f.getAbsolutePath() + actualPath) );
+                    break;
+                }
+            }
+        } else {
+            // just add it
+            localFolders.add( new Path(path) );
+        }
+    }
+	   
+    protected static void loadFolderInfo(String folderInfo, List<Path> localFolders) {
+        // load the local folders list
+        if (folderInfo.contains(File.pathSeparator)) {
+            // it's definitely a list
+            String[] paths = folderInfo.split(File.pathSeparator);
+            addLocalFolders( localFolders, paths );
+        } else {
+            File cfgFile = new File(folderInfo);
+            if (!cfgFile.exists() && folderInfo.charAt(0) != '@') {
+                System.out.println(" - No folders provided; Failed.");
+                System.err.println("---------- DEBUG ----------");
+                System.err.println(" FolderInfo: " + folderInfo);
+                System.err.println(" file = " + cfgFile);
+                if (cfgFile != null) {
+                    System.err.println(" file.path = " + cfgFile.getAbsolutePath());
+                    System.err.println(" file.exists = " + cfgFile.exists());
+                    System.err.println(" file.canRead = " + cfgFile.canRead());
+                    System.err.println(" file.isDirectory = " + cfgFile.isDirectory());
+                }
+                System.err.println("---------- DEBUG ----------");
+                System.exit(1);
+            } 
+                
+            if (cfgFile.isFile()) {
+                // it's file; read line by line
+                ArrayList<String> folders = new ArrayList<String>();
+                try {
+                    BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(
+                            new DataInputStream(
+                                    new FileInputStream(cfgFile.getCanonicalFile())
+                                    ))
+                            );
+                    String line;
+                    while ((line=reader.readLine()) != null)
+                        folders.add(line);
+                    
+                    addLocalFolders( localFolders, folders );
+                } catch (IOException e) {
+                    System.out.println(" - Could not read folders from file " 
+                            + folderInfo);
+                    System.exit(1);
+                }
+            } else {
+                // it's a single folder
+                addLocalFolders( localFolders, folderInfo );
+            }
+        } 
+    }
 	
 	private class VideoFileFilter implements FilenameFilter {
 		@Override

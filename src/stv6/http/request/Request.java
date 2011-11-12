@@ -18,8 +18,9 @@ public class Request implements HttpWritable {
 	private final HttpSocket skt;
 	private final String pageName;
 		
-	private VariableList headers, getVars, postVars;
-	private CookieJar cookies;
+	private final VariableList headers, getVars, postVars;
+	private final CookieJar cookies;
+	private StringBuilder body;
 	
 	private User user;
 	
@@ -58,6 +59,12 @@ public class Request implements HttpWritable {
 	@Override
 	public byte[] getBytes() {
 		return null;
+	}
+	
+	private long getBodyLength() {
+	    return (body == null) ?
+	            postVars.length() :
+	                body.length();
 	}
 	
 	public CookieJar getCookies() {
@@ -162,6 +169,10 @@ public class Request implements HttpWritable {
 		return true;
 	}
 	
+	public void setBody(StringBuilder body) {
+	    this.body = body;
+	}
+	
 	public void setHeader(String key, String value) {
 		headers.put(key, value);
 		if (key.equals("Cookie")) 
@@ -176,16 +187,20 @@ public class Request implements HttpWritable {
 	@Override
 	public void writeBody(PrintWriter output) {
 		// post vars, I guess?
-		postVars.writeTo(output);
+	    if (body != null)
+	        output.write(body.toString());
+	    else 
+	        postVars.writeTo(output);
 		output.flush();
 	}
 
 	@Override
 	public void writeHeaders(PrintWriter output) {
 		output.write(method+" " + path + " HTTP/1.0\r\n");
-		if (postVars.size() > 0) {
-			output.write("Content-Type: application/x-www-form-urlencoded\r\n");
-			output.write("Content-Length: " + postVars.length() + "\r\n");
+		if (getBodyLength() > 0) {
+		    if (!headers.isSet("Content-Type")) // we might set it manually
+		        output.write("Content-Type: application/x-www-form-urlencoded\r\n");
+			output.write("Content-Length: " + getBodyLength() + "\r\n");
 		}
 		for (Variable v : headers) {
 			output.write(v.key);
