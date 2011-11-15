@@ -24,7 +24,7 @@ public class Response implements Appendable, HttpWritable {
 	private StringBuffer stringBody = null;
 	private byte[] byteBody = null;
 	
-	private CookieJar cookies;
+	private final CookieJar cookies;
 	
 	public Response() {
 		stringBody = new StringBuffer();

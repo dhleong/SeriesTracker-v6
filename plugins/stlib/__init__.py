@@ -27,10 +27,12 @@ class Session(object):
         """Constructor takes no args"""
 
         # parse passed (GET) args
-        raw = urlparse.parse_qsl(sys.argv[1])
         args = {}
-        for name, val in raw:
-            args[name] = val
+
+        if len(sys.argv) > 1:
+            raw = urlparse.parse_qsl(sys.argv[1])
+            for name, val in raw:
+                args[name] = val
 
         self.args = args
 
