@@ -3,6 +3,7 @@ package stv6.http;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -26,8 +27,8 @@ public abstract class HttpServer implements Runnable {
 	private Thread thisThread;
 	
 	private ServerSocket serverskt;
-	private ClientPool clients;
-	private RequestHandlerManager responder;
+	private final ClientPool clients;
+	private final RequestHandlerManager responder;
 		
 	public HttpServer(int port) throws IOException {
 		running = false;
@@ -136,5 +137,9 @@ public abstract class HttpServer implements Runnable {
 
 	public static String formatDate(Date date) {
 		return dateFormatter.format( date );
+	}
+	
+	public static Date parseDate(String raw) throws ParseException {
+	    return dateFormatter.parse(raw);
 	}
 }

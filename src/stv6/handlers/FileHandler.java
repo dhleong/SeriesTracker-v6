@@ -7,7 +7,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.util.Date;
 
+import stv6.http.HttpServer;
 import stv6.http.request.Request;
 import stv6.http.request.RequestHandler;
 import stv6.http.request.Response;
@@ -45,6 +48,32 @@ public class FileHandler implements RequestHandler {
 			System.err.println("Cannot read: " + path);
 			return false;
 		}
+		
+		// check when the file was changed last
+		Date modified = new Date(theFile.lastModified());
+		
+		// read in headers... if they have a cached copy, they should use it
+		request.readHeaders();
+		String ifModified = request.getHeaders().getValue("If-Modified-Since");
+		if (ifModified != null) {
+    		try {
+                Date d = HttpServer.parseDate(ifModified);
+                if (modified.compareTo(d) <= 0) {
+                    // our modified date was <= their copy 
+                    //  (IE, it hasn't changed); don't make
+                    //  them re-fetch it!
+                    response.setStatus("304 Not Modified");
+                    return true;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                System.err.println("Couldn't parse If-Modified-Since: " + ifModified);
+            }
+		}
+		
+		// they didn't have a cache... let them know when this was changed
+		//    so they can make conditional requests in the future
+		response.setHeader("Last-Modified", HttpServer.formatDate(modified));
 		
 		String ext = getImageExt(path);
 		if (ext != null) {

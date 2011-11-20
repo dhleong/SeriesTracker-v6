@@ -75,6 +75,10 @@ public class Request implements HttpWritable {
 		return getVars;
 	}
 	
+	public VariableList getHeaders() {
+	    return headers;
+	}
+	
 	public String getPage() {
 		return pageName;
 	}
