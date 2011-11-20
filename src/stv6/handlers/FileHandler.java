@@ -49,31 +49,9 @@ public class FileHandler implements RequestHandler {
 			return false;
 		}
 		
-		// check when the file was changed last
-		Date modified = new Date(theFile.lastModified());
-		
-		// read in headers... if they have a cached copy, they should use it
-		request.readHeaders();
-		String ifModified = request.getHeaders().getValue("If-Modified-Since");
-		if (ifModified != null) {
-    		try {
-                Date d = HttpServer.parseDate(ifModified);
-                if (modified.compareTo(d) <= 0) {
-                    // our modified date was <= their copy 
-                    //  (IE, it hasn't changed); don't make
-                    //  them re-fetch it!
-                    response.setStatus("304 Not Modified");
-                    return true;
-                }
-            } catch (ParseException e) {
-                e.printStackTrace();
-                System.err.println("Couldn't parse If-Modified-Since: " + ifModified);
-            }
-		}
-		
-		// they didn't have a cache... let them know when this was changed
-		//    so they can make conditional requests in the future
-		response.setHeader("Last-Modified", HttpServer.formatDate(modified));
+		// can we let them use their cache?
+		if (handleCache(request, response, theFile))
+		    return true;
 		
 		String ext = getImageExt(path);
 		if (ext != null) {
@@ -189,5 +167,46 @@ public class FileHandler implements RequestHandler {
 		}	
 		
 		return null;
+    }
+    
+    /**
+     * Try to let the client use their cached copy of the file. 
+     *  Basically, if they sent an If-Modified-Since header, and it's
+     *  <= the file's modified date, we respond with 304 Not Modified
+     *  and return True. Otherwise, we set the Last-Modified header
+     *  in the response and return False
+     * @param request
+     * @param response
+     * @param theFile
+     * @return
+     */
+    public static boolean handleCache(Request request, Response response, 
+            File theFile) {
+        // check when the file was changed last
+        Date modified = new Date(theFile.lastModified());
+        
+        // read in headers... if they have a cached copy, they should use it
+        request.readHeaders();
+        String ifModified = request.getHeaders().getValue("If-Modified-Since");
+        if (ifModified != null) {
+            try {
+                Date d = HttpServer.parseDate(ifModified);
+                if (modified.compareTo(d) <= 0) {
+                    // our modified date was <= their copy 
+                    //  (IE, it hasn't changed); don't make
+                    //  them re-fetch it!
+                    response.setStatus("304 Not Modified");
+                    return true;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                System.err.println("Couldn't parse If-Modified-Since: " + ifModified);
+            }
+        }
+        
+        // they didn't have a cache... let them know when this was changed
+        //    so they can make conditional requests in the future
+        response.setHeader("Last-Modified", HttpServer.formatDate(modified));
+        return false;
     }
 }

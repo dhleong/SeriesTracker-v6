@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import stv6.Profile;
+import stv6.handlers.FileHandler;
 import stv6.http.request.Request;
 import stv6.http.request.RequestHandler;
 import stv6.http.request.Response;
@@ -85,18 +86,32 @@ public class CoverHandler implements RequestHandler {
 			return showDefault(response);
 		}
 		
-		return showFile(response, theFile);
+		return showFile(response, theFile, request);
 	}
 
 	private boolean showDefault(Response response) {
 	    File def = new File("default-cover.png");
 	    if (def.exists())
-	        return showFile(response, def);
+	        return showFile(response, def, null);
 	    
 	    return false;
 	}
 	
-	private boolean showFile(Response response, File theFile) {
+	/**
+	 * 
+	 * @param response
+	 * @param theFile
+	 * @param request Basically only pass if you're interested in letting
+	 *     clients cache the thing. If you're not (IE: the "default" cover),
+	 *     just pass null
+	 * @return
+	 */
+	private boolean showFile(Response response, File theFile, Request request) {
+	    if (request != null && FileHandler.handleCache(
+	            request, response, theFile)) {
+	        return true;
+	    }
+	    
 		String name = theFile.getName();
 		String ext = name.substring(name.lastIndexOf('.')+1);
 		response.setContentType("image/"+ext);
