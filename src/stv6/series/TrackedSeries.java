@@ -165,6 +165,10 @@ public class TrackedSeries implements Series {
 	public boolean isRecent() {
 		return Profile.getInstance().seriesIsRecent(this);
 	}
+	
+	public boolean isNew() {
+	    return lastEpisode == -1;
+	}
 
 
 	/**
