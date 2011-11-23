@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class TemplateReader {
+    private File sourceFile;
 	private BufferedReader file;
 	private StringBuilder lastLine = null;
 	private boolean useLast = false;
@@ -18,9 +19,18 @@ public class TemplateReader {
 	protected TemplateReader() {}
 	
 	public TemplateReader(File source) throws FileNotFoundException {
+	    sourceFile = source;
 		file = new BufferedReader(
 			new FileReader(source)
 		);
+	}
+	
+	/**
+	 * 
+	 * @return The File from which we are reading this template
+	 */
+	public File getSource() {
+	    return sourceFile;
 	}
 
 	/**

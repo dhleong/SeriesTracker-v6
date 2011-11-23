@@ -140,6 +140,11 @@ public abstract class HttpServer implements Runnable {
 	}
 	
 	public static Date parseDate(String raw) throws ParseException {
-	    return dateFormatter.parse(raw);
+	    try {
+	        return dateFormatter.parse(raw);
+	    } catch (ParseException e) {
+	        System.out.println("Couldn't parse: " + raw);
+	        throw e;
+	    }
 	}
 }

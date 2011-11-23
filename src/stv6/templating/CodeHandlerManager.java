@@ -7,6 +7,7 @@ import stv6.templating.environment.Environment;
 import stv6.templating.handlers.AbstractHandler;
 import stv6.templating.handlers.ClassHandler;
 import stv6.templating.handlers.IfHandler;
+import stv6.templating.handlers.IncludeHandler;
 import stv6.templating.handlers.TemplateCodeHandler;
 
 public class CodeHandlerManager implements TemplateCodeHandler {
@@ -16,9 +17,10 @@ public class CodeHandlerManager implements TemplateCodeHandler {
 	static {
 		instance_.registerHandler(new IfHandler());
 		instance_.registerHandler(new ClassHandler());
+		instance_.registerHandler(new IncludeHandler());
 	}
 	
-	private HashMap<String, TemplateCodeHandler> handlers;
+	private final HashMap<String, TemplateCodeHandler> handlers;
 	
 	private CodeHandlerManager() {
 		handlers = new HashMap<String, TemplateCodeHandler>();
@@ -32,7 +34,8 @@ public class CodeHandlerManager implements TemplateCodeHandler {
 		handlers.put(handler.getHandledCommand(), handler);
 	}
 
-	public void handle(StringBuilder line, TemplateReader tpl, 
+	@Override
+    public void handle(StringBuilder line, TemplateReader tpl, 
 			Environment env, Appendable out) throws IOException {
 		if (AbstractHandler.isCodeLine(line)) {
 			String cmd = AbstractHandler.getCmd(line);
