@@ -16,7 +16,7 @@ import stv6.http.request.Response;
 public abstract class HttpServer implements Runnable {
 
 	private static SimpleDateFormat dateFormatter 
-		= new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
+		= getDateFormatter();
 	
 	static {
 		// make sure it's in GMT
@@ -97,10 +97,10 @@ public abstract class HttpServer implements Runnable {
 			// woo; a real client!
 			clients.add( createClient(new HttpSocket(sock), responder) );
 			
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
+//			try {
+//				Thread.sleep(10);
+//			} catch (InterruptedException e) {
+//			}
 		}
 	}
 	
@@ -134,17 +134,18 @@ public abstract class HttpServer implements Runnable {
 			serverskt.close();
 		} catch (IOException e) {}
 	}
+	
+	public static SimpleDateFormat getDateFormatter() {
+		return new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss z");
+	}
 
 	public static String formatDate(Date date) {
-		return dateFormatter.format( date );
+//		return dateFormatter.format( date );
+		// date format objects not threadsafe, so...
+		return getDateFormatter().format(date);
 	}
 	
 	public static Date parseDate(String raw) throws ParseException {
-	    try {
-	        return dateFormatter.parse(raw);
-	    } catch (ParseException e) {
-	        System.out.println("Couldn't parse: " + raw);
-	        throw e;
-	    }
+	    return getDateFormatter().parse(raw);
 	}
 }
