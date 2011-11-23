@@ -55,7 +55,7 @@ public class RecentSeries implements Series, TemplateObject {
     }
     
     public boolean hasCover() {
-    	return mBase.hashCover();
+    	return mBase.hasCover();
     }
     
     public boolean isDone() {
