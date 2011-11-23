@@ -29,7 +29,7 @@ public class FileHandler implements RequestHandler {
 	public static final String HANDLED_PAGE = "files";
 	
 	private static String imgExts[] = {"jpg", "jpeg", "png", "gif", "ico"};
-	private File theFile;
+//	private File theFile;
 	
 	@Override
 	public boolean handle(Request request, Response response) {
@@ -38,7 +38,7 @@ public class FileHandler implements RequestHandler {
 		    .replace('/', File.separatorChar)
 		    .replace('+', ' ')
 		    .replace("%20", " ").substring(7);
-		theFile = new File(path);
+		File theFile = new File(path);
 		if (!theFile.exists()) {		
 			System.err.println("Cannot find: " + path + " (" +
 			        theFile.getAbsolutePath() + ")");
