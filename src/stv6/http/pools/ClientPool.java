@@ -22,6 +22,7 @@ public class ClientPool implements ClientList {
 	private final class ClientThread implements Runnable {
 
 	    private final boolean mRunning = true;
+		public String name;
 
         @Override
         public void run() {
@@ -34,10 +35,13 @@ public class ClientPool implements ClientList {
                     break;
                 }
                 
+//                System.out.println("+ " + name);
                 Client current = mClients.removeFirst();
+//                System.out.println("= " + name);
                 
                 // process 
                 current.process();
+//                System.out.println("- " + name);
             }
         }
 
@@ -62,7 +66,8 @@ public class ClientPool implements ClientList {
         for (int i=0; i<threadCount; i++) {
             mThreads[i] = new ClientThread();
             // go ahead and start the thread
-            final Thread t = new Thread(mThreads[i], "ClientPoolThread-" + i);
+            mThreads[i].name = "ClientPoolThread-" + i;
+            final Thread t = new Thread(mThreads[i], mThreads[i].name);
             t.setDaemon(true); // daemon thread please
             t.start(); // gogogo
         }

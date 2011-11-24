@@ -77,5 +77,9 @@ public class RecentSeries implements Series, TemplateObject {
     public void setId(int id) {
         mBase.setId(id);
     }
+    
+    public int size() {
+    	return mBase.size();
+    }
 
 }
