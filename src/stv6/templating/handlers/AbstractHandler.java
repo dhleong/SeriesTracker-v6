@@ -9,6 +9,7 @@ import stv6.templating.TemplateObject;
 import stv6.templating.environment.Environment;
 import stv6.templating.functions.CleanFunction;
 import stv6.templating.functions.EncodeFunction;
+import stv6.templating.functions.FirstFunction;
 import stv6.templating.functions.TemplateFunction;
 
 public abstract class AbstractHandler {
@@ -17,9 +18,10 @@ public abstract class AbstractHandler {
 		new HashMap<String, TemplateFunction>();
 	static {
 		// I should really make a manager for this instead of a HashMap, but
-		//	whatever... I've only one function right now, anyway
+		//	whatever... I've only a few functions right now, anyway
 		functions.put("encode", new EncodeFunction());
 		functions.put("clean", new CleanFunction());
+		functions.put("first", new FirstFunction());
 	}
 
 	public static void defaultAction(StringBuilder line, Environment env, Appendable out) throws IOException {
