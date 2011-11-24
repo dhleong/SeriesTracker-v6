@@ -27,6 +27,10 @@ public class RecentSeries implements Series, TemplateObject {
     public int getId() {
         return mBase.getId();
     }
+    
+    public int getLastEpisode() {
+    	return mBase.getLastEpisode();
+    }
 
     @Override
     public String getLink() {
