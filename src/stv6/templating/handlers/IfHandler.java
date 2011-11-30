@@ -103,9 +103,16 @@ public class IfHandler extends AbstractHandler implements TemplateCodeHandler {
 			if (args.length() > v.key.length()) {
 				// check for boolean stuff
 				int keyEnd = v.key.length();
-				if (args.charAt(keyEnd+1) == '=' && args.charAt(keyEnd+2) == '$') {
-					Variable v2 = getVariableAt(env, args, keyEnd+2);
-					return args.charAt(keyEnd) == '=' ? v.valueEquals(v2) : !v.valueEquals(v2);
+				if (args.charAt(keyEnd+1) == '=') {
+					if (args.charAt(keyEnd+2) == '$') {
+						Variable v2 = getVariableAt(env, args, keyEnd+2);
+						return args.charAt(keyEnd) == '=' ? v.valueEquals(v2) : !v.valueEquals(v2);
+					} else {
+						// string literal comparison
+						return args.charAt(keyEnd) == '=' ? 
+								v.value.equals(args.substring(keyEnd+2)) : 
+									!v.value.equals(args.substring(keyEnd+2));
+					}
 				}
 			} 
 			
