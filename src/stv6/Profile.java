@@ -32,10 +32,10 @@ import stv6.series.SeriesList;
 import stv6.series.TrackedSeries;
 import stv6.sync.IdUpdateData;
 import stv6.sync.SyncSettings;
-import stv6.sync.SyncSettings.SyncPage;
 import stv6.sync.SyncTrackHandler;
 import stv6.sync.Synchronizer;
 import stv6.sync.TrackData;
+import stv6.sync.SyncSettings.SyncPage;
 
 public class Profile implements Reloadable, Runnable {
 	public final static String TEMPLATE_PATH = "template";  
@@ -633,6 +633,13 @@ public class Profile implements Reloadable, Runnable {
 			System.out.println("Sync Failure (???) ");
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Unselect any selected profile
+	 */
+	public void unselect() {
+		id = -1;
 	}
 
 	/**

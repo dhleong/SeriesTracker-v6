@@ -15,8 +15,10 @@ public class STHandlerManager extends RequestHandlerManager {
 	}
 	
 	public Response handle(Request r) {		
-		// first of all, file requests should always be okay
-		if (r.getPage().equals(STServer.FILES))
+		// first of all, file requests or plugins should always be okay
+		// plugins allowed basically so I can reset mediatomb if it died
+		if (r.getPage().equals(STServer.FILES) ||
+				r.getPage().equals(STServer.PLUGINS))
 			return super.handle(r);
 		 
 		Response resp = new Response();

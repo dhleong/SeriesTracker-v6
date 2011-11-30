@@ -35,6 +35,10 @@ public class STServer extends HttpServer {
 	 */
 	public static final String FILES = "files";
 	/**
+	 * Plugins
+	 */
+	public static final String PLUGINS = "plugins";
+	/**
 	 * Selecting a profile
 	 */
 	public static final String PROFILE_SELECT = "@profile";

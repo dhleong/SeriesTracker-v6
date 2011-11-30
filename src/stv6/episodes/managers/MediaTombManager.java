@@ -14,6 +14,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import stv6.Profile;
 import stv6.STHandlerManager;
 import stv6.episodes.BasicEpisode;
 import stv6.episodes.EpisodeManager;
@@ -183,7 +184,8 @@ public class MediaTombManager extends AbstractManager implements EpisodeManager 
 		} catch (IOException e) {
 			//e.printStackTrace();
 			System.out.println("Could not connect to mediatomb server. Failed.");
-			System.exit(1);		
+//			System.exit(1);		
+			Profile.getInstance().unselect();
 			return false;
 		} catch (NullPointerException e) {
 			System.out.println(" * Could not retrieve a new SID.");

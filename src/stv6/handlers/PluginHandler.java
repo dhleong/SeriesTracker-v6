@@ -29,17 +29,25 @@ public class PluginHandler implements RequestHandler {
 			pluginName = pluginName.substring(0, argsPos);
 		}
 		File exe = Profile.getInstance().getPluginExe();
-		if (exe == null || !exe.exists()) 
-			return false; 
+//		if (exe == null || !exe.exists()) 
+//			return false; 
 			
 		File plugin = new File("plugins/" + pluginName);
 		if (plugin == null || !plugin.exists()) 
 			return false;
 		
 		try {			
-			String[] cmdarray = (args != null) ? 
+			String[] cmdarray;
+			if ((exe == null || !exe.exists()) && plugin.canExecute()) {
+				// no exe, but the plugin itself can be executed
+				cmdarray = (args != null) ? 
+						new String[] {plugin.getAbsolutePath(), args} :
+						new String[] {plugin.getAbsolutePath()};
+			} else {
+				cmdarray = (args != null) ? 
 					new String[] {exe.getAbsolutePath(), plugin.getAbsolutePath(), args} :
 					new String[] {exe.getAbsolutePath(), plugin.getAbsolutePath()};
+			}
 //			System.out.print("Executing: ");
 //			for (String c : cmdarray)
 //				System.out.print(c +"\n");
