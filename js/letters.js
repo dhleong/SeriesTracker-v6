@@ -12,13 +12,17 @@ var switch_letter = function(link) {
     $$('.jump-link.selected').each(function(el) {
         el.removeClass('selected');
     });
-    $$('.series-group').each(function(el) {
-        el.addClass('hidden');
+    link.addClass('selected');
+
+    var letter = link.get('text');
+    var targetClass = 'group-'+letter;
+    $('all').getElements('.series').each(function(el) {
+        if (el.hasClass(targetClass))
+            el.removeClass('hidden');
+        else
+            el.addClass('hidden');
     });
 
-    link.addClass('selected');
-    var letter = link.get('text');
-    $('series-' + letter).removeClass('hidden');
 };
 
 var show_all = function(e) {
@@ -27,7 +31,7 @@ var show_all = function(e) {
     $$('.jump-link.selected').each(function(el) {
         el.removeClass('selected');
     });
-    $$('.series-group').each(function(el) {
+    $$('.series.hidden').each(function(el) {
         el.removeClass('hidden');
     });
     $('letter-all').addClass('selected');
