@@ -91,8 +91,13 @@ public abstract class HttpServer implements Runnable {
 	public void run() {
 		while (thisThread == Thread.currentThread() && running) {
 			Socket sock = getSocket();
-			if (sock == null)
-				continue;			
+			if (sock == null) {
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+				}
+				continue;		
+			}
 			
 			// woo; a real client!
 			clients.add( createClient(new HttpSocket(sock), responder) );
@@ -101,6 +106,7 @@ public abstract class HttpServer implements Runnable {
 //				Thread.sleep(10);
 //			} catch (InterruptedException e) {
 //			}
+			Thread.yield();
 		}
 	}
 	
