@@ -3,12 +3,20 @@ package stv6.http;
 public interface Client {
 
 	/**
-	 * @return True if we're done and can be cleaned
+	 * Basically an alias for Socket#ready()
+	 * @return True if our socket is ready to be read
 	 */
-	public boolean isDead();
+	public boolean isReady();
 
 	/**
 	 * Read the request, handle it
+	 * @param name TODO
 	 */
-	public void process();
+	public void process(String name);
+
+	/**
+	 * Mark the client as timed out. Implementations should
+	 * close any connections as politely as possible
+	 */
+    public void timeout();
 }

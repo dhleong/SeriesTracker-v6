@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import stv6.http.Client;
 import stv6.http.HttpSocket;
+import stv6.http.pools.ClientPool;
 import stv6.http.request.Request;
 import stv6.http.request.RequestHandlerManager;
 import stv6.http.request.Response;
@@ -19,7 +20,6 @@ public class STClient implements Client {
 	
 	private final HttpSocket skt;
 	private final RequestHandlerManager callback;
-	private boolean isDead = false;
 	
 	public STClient(HttpSocket skt, RequestHandlerManager callback) {
 		this.skt = skt;
@@ -27,25 +27,20 @@ public class STClient implements Client {
 	}
 
 	@Override
-	public boolean isDead() {
-		return isDead;
+	public boolean isReady() {
+		return skt.ready();
 	}
 
 	@Override
-	public void process() {
-		// let someone else work until we're ready
-		while (!skt.ready()) {
-		    Thread.yield();
-		}
-			
+	public void process(String name) {
 		
 		// see what they want to do
 		Request r;
 		try {
 			r = Request.readFrom(skt);
+			if (ClientPool.DEBUG) System.out.println("! " + name + ":  " + r.path);
 		} catch (IOException e) {
 			e.printStackTrace();
-			isDead = true;
 			skt.close();
 			return;
 		}
@@ -55,8 +50,16 @@ public class STClient implements Client {
 		skt.write(resp);
 		
 		// clean up
-		skt.close();		
-		isDead = true;
+		skt.close();	
 	}
+
+    @Override
+    public void timeout() {
+        Response resp = new Response();
+        resp.setStatus("408 Request Timeout");
+        skt.write(resp);
+        skt.flush();
+        skt.close();
+    }
 
 }

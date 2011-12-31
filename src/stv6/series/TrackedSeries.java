@@ -45,7 +45,8 @@ public class TrackedSeries implements Series {
 	public SeriesEpisode getEpisodeFromRequest(Request r) {
 		if (!r.getGetVars().isSet("ep")) 
 			return null;
-		
+		// TODO Try replacing the host in the episode link
+		//    with the host past in the Request
 		try {
 			int episodeId = Integer.parseInt(r.getGetVars().getValue("ep"));
 			if (episodeId == -1)

@@ -18,8 +18,12 @@ import stv6.http.Client;
  */
 public class ClientPool implements ClientList {
     
-    
-	private final class ClientThread implements Runnable {
+    /**
+     * If we don't get data within 15 seconds, timeout
+     */
+	public static final long TIMEOUT_DELAY = 15000;
+
+    private final class ClientThread implements Runnable {
 
 	    private final boolean mRunning = true;
 		public String name;
@@ -35,13 +39,35 @@ public class ClientPool implements ClientList {
                     break;
                 }
                 
-//                System.out.println("+ " + name);
+                if (DEBUG) System.out.println("+ " + name);
                 Client current = mClients.removeFirst();
-//                System.out.println("= " + name);
+                if (DEBUG) System.out.println("= " + name);
+                
+                // let someone else work until we're ready
+                long timeout = System.currentTimeMillis() + TIMEOUT_DELAY;
+                while (!current.isReady() && System.currentTimeMillis() < timeout) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {}
+                }
+                if (!current.isReady()) {
+                    // timed out
+                    current.timeout();
+                    if (DEBUG) System.out.println("> " + name);
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                    }
+                    continue;
+                }
+                
+                if (DEBUG) System.out.println("~ " + name);
                 
                 // process 
-                current.process();
-//                System.out.println("- " + name);
+                current.process(name);
+                if (DEBUG) System.out.println("- " + name);
+                
+                Thread.yield();
             }
         }
 
@@ -51,6 +77,8 @@ public class ClientPool implements ClientList {
 	 * Max # of kids before reorganizing
 	 */
 	public static final int DEFAULT_THREADS = 8;
+    public static final boolean DEBUG = false;
+    
     private final ClientThread[] mThreads;
     
     private final Semaphore mClientsWaiting = new Semaphore(0);
